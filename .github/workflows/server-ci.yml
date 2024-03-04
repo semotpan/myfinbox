@@ -31,3 +31,19 @@ jobs:
 
       - name: Test and Build 'server' with maven
         run: ./server/mvnw --batch-mode --update-snapshots  clean verify -f server/pom.xml
+
+      - name: Upload Report
+        uses: 'actions/upload-artifact@v2'
+        with:
+          name: jacoco-report
+          path: ${{ github.workspace }}/server/target/site/jacoco-it/jacoco.xml
+
+      - name: Add coverage to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: |
+            ${{ github.workspace }}/server/target/site/jacoco-it/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 90
+          min-coverage-changed-files: 80
