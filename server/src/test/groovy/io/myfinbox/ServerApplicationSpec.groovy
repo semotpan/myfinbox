@@ -3,6 +3,7 @@ package io.myfinbox
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
+import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 import spock.lang.Tag
 
@@ -10,6 +11,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @Tag("integration")
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = TestServerApplication)
+@TestPropertySource(locations = "/application-test.properties")
 class ServerApplicationSpec extends Specification {
 
     @Autowired
