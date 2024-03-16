@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: Swagger MyFinBox
+  description: |-
+    MyFinBox REST API
+  version: 1.0.0
+tags:
+  - name: accounts
+    description: Everything about your Accounts
+paths:
