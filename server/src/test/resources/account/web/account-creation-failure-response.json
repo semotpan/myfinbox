@@ -1,0 +1,11 @@
+{
+  "status": 422,
+  "errorCode": "UNPROCESSABLE_ENTITY",
+  "message": "validation failed on create account request.",
+  "errors": [
+    {
+      "field": "emailAddress",
+      "message": "email address cannot be empty."
+    }
+  ]
+}

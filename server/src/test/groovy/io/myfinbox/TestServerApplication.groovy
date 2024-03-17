@@ -12,8 +12,9 @@ class TestServerApplication {
 
     @Bean
     @ServiceConnection
-    PostgreSQLContainer<? extends PostgreSQLContainer> mysqlContainer() {
+    PostgreSQLContainer<? extends PostgreSQLContainer> postgresSQLContainer() {
         return new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"))
+                .withUrlParam("currentSchema", "server")
     }
 
     static void main(String[] args) {

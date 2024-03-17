@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*
 import spock.lang.Specification
 import spock.lang.Tag
 
-import static org.hamcrest.Matchers.*
+import static org.hamcrest.Matchers.is
+import static org.hamcrest.Matchers.matchesPattern
 import static org.springframework.http.HttpHeaders.ALLOW
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE
 import static org.springframework.http.HttpMethod.GET
@@ -64,9 +65,9 @@ class ApiExceptionHandlerSpec extends Specification {
 
     def "should get Not Found when no handler found exception"() {
         var lenientResp = JsonOutput.toJson([
-                status      : 404,
-                errorCode   : "NOT_FOUND",
-                message     : "Resource '/unknown' not found"
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Resource '/unknown' not found"
         ])
 
         expect:
@@ -79,9 +80,9 @@ class ApiExceptionHandlerSpec extends Specification {
 
     def "should get Method Not Allowed when request method not supported exception"() {
         var lenientResp = JsonOutput.toJson([
-                status      : 405,
-                errorCode   : "METHOD_NOT_ALLOWED",
-                message     : "Request method 'POST' is not supported"
+                status   : 405,
+                errorCode: "METHOD_NOT_ALLOWED",
+                message  : "Request method 'POST' is not supported"
         ])
 
         expect:
@@ -95,9 +96,9 @@ class ApiExceptionHandlerSpec extends Specification {
 
     def "should get Not Acceptable when media type not acceptable exception"() {
         var lenientResp = JsonOutput.toJson([
-                status      : 406,
-                errorCode   : "NOT_ACCEPTABLE",
-                message     : "Could not find acceptable representation"
+                status   : 406,
+                errorCode: "NOT_ACCEPTABLE",
+                message  : "Could not find acceptable representation"
         ])
 
         expect:
@@ -111,9 +112,9 @@ class ApiExceptionHandlerSpec extends Specification {
 
     def "should get Unsupported media type when media type not supported exception"() {
         var lenientResp = JsonOutput.toJson([
-                status      : 415,
-                errorCode   : "UNSUPPORTED_MEDIA_TYPE",
-                message     : "Content type 'application/xml' is not supported",
+                status   : 415,
+                errorCode: "UNSUPPORTED_MEDIA_TYPE",
+                message  : "Content type 'application/xml' is not supported",
         ])
 
         expect:
@@ -127,9 +128,9 @@ class ApiExceptionHandlerSpec extends Specification {
 
     def "should get Internal Server Error when unexpected exception thrown"() {
         var lenientResp = JsonOutput.toJson([
-                status      : 500,
-                errorCode   : "INTERNAL_SERVER_ERROR",
-                message     : "An unexpected error occurred"
+                status   : 500,
+                errorCode: "INTERNAL_SERVER_ERROR",
+                message  : "An unexpected error occurred"
         ])
 
         expect:

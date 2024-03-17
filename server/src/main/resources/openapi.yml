@@ -8,3 +8,23 @@ tags:
   - name: accounts
     description: Everything about your Accounts
 paths:
+components:
+  schemas:
+    #  Request Objects
+    AccountCreateResource:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          example: e2709aa2-7907-4f78-98b6-0f36a0c1b5ca
+          description: It's expose only for reads, it's ignored on writes
+        firstName:
+          type: string
+          example: Jon
+        lastName:
+          type: string
+          example: Doe
+        emailAddress:
+          type: string
+          example: jondoe@email.com
