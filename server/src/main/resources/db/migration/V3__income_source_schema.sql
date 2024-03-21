@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS expensecategory
+CREATE TABLE IF NOT EXISTS incomesource
 (
     id                 UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
     account_id         UUID         NOT NULL,
@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS expensecategory
     creation_timestamp TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX expense_category_account_id_idx ON expensecategory (account_id);
-CREATE UNIQUE INDEX unique_category_name_account_id_idx ON expensecategory (account_id, name);
+CREATE UNIQUE INDEX unique_source_name_account_id_idx ON incomesource (account_id, name);
+CREATE UNIQUE INDEX unique_income_source_name_account_id_idx ON incomesource (account_id, name);
