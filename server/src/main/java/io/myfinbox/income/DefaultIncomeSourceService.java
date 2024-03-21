@@ -1,4 +1,4 @@
-package io.myfinbox.expense;
+package io.myfinbox.income;
 
 import io.myfinbox.shared.Failure;
 import io.vavr.control.Either;
@@ -11,23 +11,23 @@ import java.util.List;
 import static java.util.Objects.isNull;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-class DefaultCategoryService implements CategoryService {
+class DefaultIncomeSourceService implements IncomeSourceService {
 
-    private final Categories categories;
+    private final IncomeSources incomeSources;
 
     @Override
-    @Transactional
-    public Either<Failure, List<Category>> createDefault(AccountIdentifier account) {
+    public Either<Failure, List<IncomeSource>> createDefault(AccountIdentifier account) {
         if (isNull(account)) {
             return Either.left(Failure.ofValidation("AccountIdentifier cannot be null", List.of()));
         }
 
-        var values = DefaultCategories.asList().stream()
-                .map(c -> new Category(c, account))
+        var values = DefaultIncomeSources.asList().stream()
+                .map(is -> new IncomeSource(is, account))
                 .toList();
 
-        categories.saveAll(values);
+        incomeSources.saveAll(values);
 
         return Either.right(values);
     }

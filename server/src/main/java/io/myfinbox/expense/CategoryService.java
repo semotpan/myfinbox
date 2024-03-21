@@ -16,6 +16,6 @@ public interface CategoryService {
      * @param account The account for which default categories are to be initialized.
      * @return {@link Either} a {@link Failure} instance if initialization fails, or a list of initialized categories.
      */
-    Either<Failure, List<Category>> initDefaultCategories(AccountIdentifier account);
+    Either<Failure, List<Category>> createDefault(AccountIdentifier account);
 
 }

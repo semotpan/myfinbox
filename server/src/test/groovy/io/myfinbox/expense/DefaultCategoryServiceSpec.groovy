@@ -21,7 +21,7 @@ class DefaultCategoryServiceSpec extends Specification {
 
     def "should fail create default categories when account is null"() {
         when: 'account is null'
-        def either = service.initDefaultCategories(null)
+        def either = service.createDefault(null)
 
         then: 'validation failure is present'
         assert either.isLeft()
@@ -40,6 +40,6 @@ class DefaultCategoryServiceSpec extends Specification {
         } >> []
 
         expect: 'created default categories for provided accountId'
-        service.initDefaultCategories(account)
+        service.createDefault(account)
     }
 }

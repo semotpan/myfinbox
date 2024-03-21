@@ -1,4 +1,4 @@
-package io.myfinbox.expense;
+package io.myfinbox.income;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -16,31 +16,30 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.length;
 
 /**
- * Defines the domain model representation of expense category
+ * Defines the domain model representation of income source
  */
 @Entity
-@Table(name = "expensecategory")
+@Table(name = "incomesource")
 @Getter
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor(access = PRIVATE, force = true)
-public final class Category {
+public final class IncomeSource {
 
     static final int MAX_LENGTH = 100;
 
     @EmbeddedId
-    private final CategoryIdentifier id;
+    private final IncomeSourceIdentifier id;
 
     @Embedded
     @AttributeOverride(name = "id", column = @Column(name = "account_id"))
     private final AccountIdentifier account;
 
     private String name;
-
     private Instant creationTimestamp;
 
-    public Category(String name, AccountIdentifier account) {
-        this.id = new CategoryIdentifier(UUID.randomUUID());
+    public IncomeSource(String name, AccountIdentifier account) {
+        this.id = new IncomeSourceIdentifier(UUID.randomUUID());
         this.account = requireNonNull(account, "account cannot be null");
         this.name = requireValidName(name);
         this.creationTimestamp = Instant.now();
@@ -59,9 +58,9 @@ public final class Category {
     }
 
     @Embeddable
-    public record CategoryIdentifier(UUID id) implements Serializable {
+    public record IncomeSourceIdentifier(UUID id) implements Serializable {
 
-        public CategoryIdentifier {
+        public IncomeSourceIdentifier {
             requireNonNull(id, "id cannot be null");
         }
 
