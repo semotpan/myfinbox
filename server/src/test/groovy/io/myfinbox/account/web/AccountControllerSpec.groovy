@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.modulith.test.ApplicationModuleTest
 import org.springframework.modulith.test.PublishedEvents
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
@@ -28,6 +29,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON
 @Tag("integration")
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = TestServerApplication)
 @ApplicationModuleTest
+@TestPropertySource(locations = "/application-test.properties")
 class AccountControllerSpec extends Specification {
 
     @Autowired
