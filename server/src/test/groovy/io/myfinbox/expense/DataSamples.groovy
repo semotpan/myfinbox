@@ -2,6 +2,7 @@ package io.myfinbox.expense
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import groovy.json.JsonOutput
+import io.myfinbox.expense.application.CategoryService
 import io.myfinbox.expense.application.ExpenseCommand
 import io.myfinbox.expense.domain.AccountIdentifier
 import io.myfinbox.expense.domain.Category
@@ -13,7 +14,6 @@ class DataSamples {
     static MAPPER = JsonMapper.builder()
             .findAndAddModules()
             .build()
-
 
     static entityId = "3b257779-a5db-4e87-9365-72c6f8d4977d"
     static accountId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
@@ -32,7 +32,7 @@ class DataSamples {
             id               : [id: categoryId],
             account          : [id: accountId],
             creationTimestamp: timestamp,
-            name             : "Fun"
+            name             : "Bills"
     ]
 
     static EXPENSE = [
@@ -75,6 +75,11 @@ class DataSamples {
             expenseDate: expenseDate,
     ]
 
+    static EXPENSE_CATEGORY_RESOURCE = [
+            accountId: accountId,
+            name     : 'Bills',
+    ]
+
     static newSampleDefaultCategories(AccountIdentifier account) {
         DefaultCategories.asList().stream()
                 .map { c -> new Category(c, account) }
@@ -99,5 +104,13 @@ class DataSamples {
 
     static newSampleExpenseCreatedEvent(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(EXPENSE_CREATED_EVENT + map) as String, ExpenseCreated.class)
+    }
+
+    static newSampleExpenseCategoryCommand(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_CATEGORY_RESOURCE + map) as String, CategoryService.CategoryCommand.class)
+    }
+
+    static newValidExpenseCategoryResource(map = [:]) {
+        JsonOutput.toJson(EXPENSE_CATEGORY_RESOURCE + map) as String
     }
 }

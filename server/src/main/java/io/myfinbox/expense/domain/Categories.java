@@ -14,4 +14,6 @@ public interface Categories extends JpaRepository<Category, CategoryIdentifier> 
 
     Optional<Category> findByIdAndAccount(CategoryIdentifier categoryId, AccountIdentifier accountId);
 
+    boolean existsByNameAndAccount(String name, AccountIdentifier accountId);
+
 }

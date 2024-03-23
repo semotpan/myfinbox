@@ -78,3 +78,26 @@ components:
           type: string
           example: Course buying
           description: Additional description attached to the expense.
+
+    ExpenseCategoryResource:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the expense category (read-only).
+        accountId:
+          type: string
+          format: uuid
+          example: 3b257779-a5db-4e87-9365-72c6f8d4977d
+          description: The ID of the account that submitted the expense category.
+        name:
+          type: string
+          example: Fun
+          description: The name of the category.
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the expense was created (read-only).
