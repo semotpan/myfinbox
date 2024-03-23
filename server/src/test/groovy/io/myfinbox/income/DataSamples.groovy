@@ -1,6 +1,9 @@
 package io.myfinbox.income
 
 import com.fasterxml.jackson.databind.json.JsonMapper
+import io.myfinbox.income.domain.AccountIdentifier
+import io.myfinbox.income.domain.DefaultIncomeSources
+import io.myfinbox.income.domain.IncomeSource
 
 class DataSamples {
 

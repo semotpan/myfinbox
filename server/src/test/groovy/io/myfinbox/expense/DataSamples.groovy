@@ -2,6 +2,11 @@ package io.myfinbox.expense
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import groovy.json.JsonOutput
+import io.myfinbox.expense.application.ExpenseCommand
+import io.myfinbox.expense.domain.AccountIdentifier
+import io.myfinbox.expense.domain.Category
+import io.myfinbox.expense.domain.DefaultCategories
+import io.myfinbox.expense.domain.Expense
 
 class DataSamples {
 

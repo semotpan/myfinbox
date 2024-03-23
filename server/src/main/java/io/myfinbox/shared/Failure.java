@@ -4,7 +4,7 @@ import lombok.Builder;
 
 import java.util.Collection;
 
-import static java.util.Objects.requireNonNull;
+import static io.myfinbox.shared.Guards.notNull;
 
 /**
  * A marker interface representing different types of failures that can occur in the application.
@@ -45,7 +45,7 @@ public interface Failure {
     record ValidationFailure(String message, Collection<FieldViolation> fieldViolations) implements Failure {
 
         public ValidationFailure {
-            requireNonNull(fieldViolations, "fieldViolations cannot be null");
+            notNull(fieldViolations, "fieldViolations cannot be null");
         }
     }
 
