@@ -2,8 +2,9 @@ package io.myfinbox.account
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import groovy.json.JsonOutput
+import io.myfinbox.account.domain.Account
 
-import static io.myfinbox.account.CreateAccountUseCase.CreateAccountCommand
+import static io.myfinbox.account.application.CreateAccountUseCase.CreateAccountCommand
 
 class DataSamples {
 
@@ -26,10 +27,10 @@ class DataSamples {
     ]
 
     static ACCOUNT_CREATED_EVENT = [
-            accountIdentifier: ["id": "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"],
-            emailAddress     : ["emailAddress": "jonsnow@gmail.com"],
-            firstName        : "Jon",
-            lastName         : "Snow"
+            accountId   : "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca",
+            emailAddress: ["emailAddress": "jonsnow@gmail.com"],
+            firstName   : "Jon",
+            lastName    : "Snow"
     ]
 
     static newSampleCreateAccountCommand(map = [:]) {

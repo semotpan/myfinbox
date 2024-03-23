@@ -7,7 +7,7 @@ import java.util.List;
 
 import static io.myfinbox.shared.ApiErrorResponse.*;
 import static io.myfinbox.shared.Failure.*;
-import static java.util.Objects.requireNonNull;
+import static io.myfinbox.shared.Guards.notNull;
 
 /**
  * {@link ApiFailureHandler} defines the mapping between application Failure and REST ApiError Response.
@@ -23,7 +23,7 @@ public final class ApiFailureHandler {
      * @throws NullPointerException     if the provided failure is null.
      */
     public ResponseEntity<ApiErrorResponse> handle(Failure failure) {
-        requireNonNull(failure, "failure cannot be null");
+        notNull(failure, "failure cannot be null");
         return switch (failure) {
             case NotFoundFailure(var message) -> notFound(message);
             case ConflictFailure(var message) -> conflict(message);
