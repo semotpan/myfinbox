@@ -19,6 +19,7 @@
 		<vavr.version>0.10.4</vavr.version>
 		<assertj-vavr.version>0.4.3</assertj-vavr.version>
 		<moneta.version>1.4.2</moneta.version>
+		<hypersistence-utils.version>3.6.0</hypersistence-utils.version>
 		<springdoc-openapi.version>2.4.0</springdoc-openapi.version>
 		<javax.annotation-api.version>1.3.2</javax.annotation-api.version>
 		<swagger-annotations.version>2.2.8</swagger-annotations.version>
@@ -27,6 +28,7 @@
 		<openapi-generator-maven-plugin.version>6.4.0</openapi-generator-maven-plugin.version>
 		<spock-bom.version>2.4-M1-groovy-4.0</spock-bom.version>
 		<jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
+		<jackson-datatype-money>1.3.0</jackson-datatype-money>
 	</properties>
 
 	<dependencies>
@@ -54,6 +56,11 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.hypersistence</groupId>
+			<artifactId>hypersistence-utils-hibernate-62</artifactId>
+			<version>${hypersistence-utils.version}</version>
 		</dependency>
 
 		<!-- Modularization -->
@@ -195,6 +202,12 @@
 		<dependency>
 			<groupId>org.skyscreamer</groupId>
 			<artifactId>jsonassert</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>jackson-datatype-money</artifactId>
+			<version>${jackson-datatype-money}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

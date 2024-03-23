@@ -5,10 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.modulith.Modulithic;
 
 @SpringBootApplication
-@Modulithic(
-        sharedModules = {
-                "io.myfinbox.shared"
-        }, useFullyQualifiedModuleNames = true)
+@Modulithic(sharedModules = "io.myfinbox.shared", useFullyQualifiedModuleNames = true)
 public class ServerApplication {
 
     public static void main(String[] args) {

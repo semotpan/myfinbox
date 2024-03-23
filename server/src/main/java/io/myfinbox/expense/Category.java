@@ -30,14 +30,13 @@ public final class Category {
 
     @EmbeddedId
     private final CategoryIdentifier id;
+    private final Instant creationTimestamp;
 
     @Embedded
     @AttributeOverride(name = "id", column = @Column(name = "account_id"))
     private final AccountIdentifier account;
 
     private String name;
-
-    private Instant creationTimestamp;
 
     public Category(String name, AccountIdentifier account) {
         this.id = new CategoryIdentifier(UUID.randomUUID());

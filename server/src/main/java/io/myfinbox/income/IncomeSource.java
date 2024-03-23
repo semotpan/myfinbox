@@ -30,13 +30,13 @@ public final class IncomeSource {
 
     @EmbeddedId
     private final IncomeSourceIdentifier id;
+    private final Instant creationTimestamp;
 
     @Embedded
     @AttributeOverride(name = "id", column = @Column(name = "account_id"))
     private final AccountIdentifier account;
 
     private String name;
-    private Instant creationTimestamp;
 
     public IncomeSource(String name, AccountIdentifier account) {
         this.id = new IncomeSourceIdentifier(UUID.randomUUID());

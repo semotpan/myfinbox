@@ -49,11 +49,14 @@ public interface Failure {
         }
     }
 
-    record NotFoundFailure(String message) implements Failure {}
+    record NotFoundFailure(String message) implements Failure {
+    }
 
-    record ConflictFailure(String message) implements Failure {}
+    record ConflictFailure(String message) implements Failure {
+    }
 
     @Builder
-    record FieldViolation(String field, String message, Object rejectedValue) {}
+    record FieldViolation(String field, String message, Object rejectedValue) {
+    }
 
 }
