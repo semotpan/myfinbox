@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE, force = true)
 public final class Category {
 
-    static final int MAX_LENGTH = 100;
+    public static final int NAME_MAX_LENGTH = 100;
 
     @EmbeddedId
     private final CategoryIdentifier id;
@@ -40,7 +40,7 @@ public final class Category {
         this.id = new CategoryIdentifier(UUID.randomUUID());
         this.account = notNull(account, "account cannot be null");
         notBlank(name, "name cannot be blank");
-        this.name = doesNotOverflow(name, MAX_LENGTH, "name overflow, max length allowed '%d'".formatted(MAX_LENGTH));
+        this.name = doesNotOverflow(name, NAME_MAX_LENGTH, "name overflow, max length allowed '%d'".formatted(NAME_MAX_LENGTH));
         this.creationTimestamp = Instant.now();
     }
 
