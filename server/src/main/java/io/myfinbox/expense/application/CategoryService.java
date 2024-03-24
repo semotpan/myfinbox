@@ -11,6 +11,7 @@ import java.util.UUID;
 /**
  * Service interface for managing categories.
  */
+// FIXME: ensure the current auth user matches the accountID
 public interface CategoryService {
 
     /**
@@ -28,6 +29,14 @@ public interface CategoryService {
      * @return {@link Either} a {@link Failure} instance if the category creation fails, or the created {@link Category} instance.
      */
     Either<Failure, Category> create(CategoryCommand command);
+
+    /**
+     * Updates a category name based on the provided command.
+     *
+     * @param command The command containing category update details.
+     * @return {@link Either} a {@link Failure} instance if the category update fails, or the update {@link Category} instance.
+     */
+    Either<Failure, Category> update(UUID categoryId, CategoryCommand command);
 
     record CategoryCommand(String name, UUID accountId) {
 

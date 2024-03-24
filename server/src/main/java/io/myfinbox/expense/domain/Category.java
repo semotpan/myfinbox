@@ -39,9 +39,17 @@ public final class Category {
     public Category(String name, AccountIdentifier account) {
         this.id = new CategoryIdentifier(UUID.randomUUID());
         this.account = notNull(account, "account cannot be null");
+        setName(name);
+        this.creationTimestamp = Instant.now();
+    }
+
+    public void setName(String name) {
         notBlank(name, "name cannot be blank");
         this.name = doesNotOverflow(name, NAME_MAX_LENGTH, "name overflow, max length allowed '%d'".formatted(NAME_MAX_LENGTH));
-        this.creationTimestamp = Instant.now();
+    }
+
+    public boolean sameName(String name) {
+        return this.name.equalsIgnoreCase(name);
     }
 
     @Embeddable

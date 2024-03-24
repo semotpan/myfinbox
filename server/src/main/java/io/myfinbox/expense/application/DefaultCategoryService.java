@@ -3,6 +3,7 @@ package io.myfinbox.expense.application;
 import io.myfinbox.expense.domain.AccountIdentifier;
 import io.myfinbox.expense.domain.Categories;
 import io.myfinbox.expense.domain.Category;
+import io.myfinbox.expense.domain.Category.CategoryIdentifier;
 import io.myfinbox.expense.domain.DefaultCategories;
 import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.Failure.FieldViolation;
@@ -30,7 +31,9 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 class DefaultCategoryService implements CategoryService {
 
     public static final String VALIDATION_CREATE_FAILURE_MESSAGE = "The validation for the create category expense request has failed.";
+    public static final String VALIDATION_UPDATE_FAILURE_MESSAGE = "The validation for the update category expense request has failed.";
     public static final String CATEGORY_NAME_DUPLICATE_MESSAGE = "Category name already exists.";
+    public static final String CATEGORY_NOT_FOUND_MESSAGE = "Category not found.";
 
     private final CategoryCommandValidator validator = new CategoryCommandValidator();
 
@@ -68,6 +71,37 @@ class DefaultCategoryService implements CategoryService {
         categories.save(category);
 
         return Either.right(category);
+    }
+
+    @Override
+    @Transactional
+    public Either<Failure, Category> update(UUID categoryId, CategoryCommand command) {
+        var validation = validator.validate(command);
+        if (validation.isInvalid()) {
+            return Either.left(Failure.ofValidation(VALIDATION_UPDATE_FAILURE_MESSAGE, validation.getError().toJavaList()));
+        }
+
+        if (isNull(categoryId)) {
+            return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
+        }
+
+        var category = categories.findByIdAndAccount(new CategoryIdentifier(categoryId), new AccountIdentifier(command.accountId()));
+        if (category.isEmpty()) {
+            return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
+        }
+
+        if (category.get().sameName(command.name())) {
+            return Either.right(category.get());
+        }
+
+        if (categories.existsByNameAndAccount(command.name(), new AccountIdentifier(command.accountId()))) {
+            return Either.left(Failure.ofConflict(CATEGORY_NAME_DUPLICATE_MESSAGE));
+        }
+
+        category.get().setName(command.name());
+        categories.save(category.get()); // FIXME: fix the save anti-pattern
+
+        return Either.right(category.get());
     }
 
     private static final class CategoryCommandValidator {
