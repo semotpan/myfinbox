@@ -6,18 +6,18 @@ import io.myfinbox.shared.ApiFailureHandler;
 import io.myfinbox.shared.ExpenseCategoryResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static io.myfinbox.expense.application.CategoryService.CategoryCommand;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
-@RequestMapping(path = "/expenses/categories")
+@RequestMapping(path = "/expenses/category")
 @RequiredArgsConstructor
 final class ExpenseCategoryController implements ExpenseCategoryControllerApi {
 
@@ -30,6 +30,12 @@ final class ExpenseCategoryController implements ExpenseCategoryControllerApi {
                 .fold(apiFailureHandler::handle,
                         category -> created(fromCurrentRequest().path("/{id}").build(category.getId().id()))
                                 .body(toResource(category)));
+    }
+
+    @PutMapping(path = "/{categoryId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> update(@PathVariable UUID categoryId, @RequestBody ExpenseCategoryResource resource) {
+        return categoryService.update(categoryId, new CategoryCommand(resource.getName(), resource.getAccountId()))
+                .fold(apiFailureHandler::handle, category -> ok(toResource(category)));
     }
 
     private ExpenseCategoryResource toResource(Category category) {
