@@ -15,9 +15,10 @@ class DataSamples {
             .findAndAddModules()
             .build()
 
-    static entityId = "3b257779-a5db-4e87-9365-72c6f8d4977d"
+    static expenseId = "3b257779-a5db-4e87-9365-72c6f8d4977d"
     static accountId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
     static categoryId = "3b257779-a5db-4e87-9365-72c6f8d4977d"
+    static categoryId2 = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
     static timestamp = "2024-03-23T10:00:04.224870Z"
     static expenseDate = "2024-03-23"
     static amount = 10.0
@@ -36,7 +37,7 @@ class DataSamples {
     ]
 
     static EXPENSE = [
-            id               : [id: entityId],
+            id               : [id: expenseId],
             account          : [id: accountId],
             creationTimestamp: timestamp,
             category         : CATEGORY,
@@ -67,7 +68,7 @@ class DataSamples {
     ]
 
     static EXPENSE_CREATED_EVENT = [
-            expenseId  : entityId,
+            expenseId  : expenseId,
             accountId  : accountId,
             categoryId : categoryId,
             paymentType: "CASH",
@@ -104,6 +105,10 @@ class DataSamples {
 
     static newSampleExpenseCreatedEvent(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(EXPENSE_CREATED_EVENT + map) as String, ExpenseCreated.class)
+    }
+
+    static newSampleExpenseUpdatedCreatedEvent(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_CREATED_EVENT + map) as String, ExpenseUpdated.class)
     }
 
     static newSampleExpenseCategoryCommand(map = [:]) {

@@ -58,6 +58,22 @@ class ApiFailureHandlerSpec extends Specification {
         assert response.getBody().errorCode() == NOT_FOUND
     }
 
+    def "should get forbidden API response when action not allowed"() {
+        given: 'a forbidden failure'
+        def forbidden = Failure.ofForbidden("No allowed to amend resource")
+
+        when: 'handle forbidden failure'
+        def response = handler.handle(forbidden)
+
+        then: 'response status code is forbidden'
+        assert response.getStatusCode() == FORBIDDEN
+
+        and: 'response body contains api response'
+        assert response.getBody().status() == 403
+        assert response.getBody().message() == "No allowed to amend resource"
+        assert response.getBody().errorCode() == FORBIDDEN
+    }
+
     def "should get unprocessable entity API response when validation failure"() {
         given: 'a validation failure'
         def notFound = Failure.ofValidation("Schema Validation failure", [

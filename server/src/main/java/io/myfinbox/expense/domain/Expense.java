@@ -2,6 +2,7 @@ package io.myfinbox.expense.domain;
 
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import io.myfinbox.expense.ExpenseCreated;
+import io.myfinbox.expense.ExpenseUpdated;
 import io.myfinbox.shared.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -68,6 +69,27 @@ public class Expense extends AbstractAggregateRoot<Expense> {
         this.description = description;
 
         registerEvent(ExpenseCreated.builder()
+                .expenseId(this.id.id())
+                .accountId(this.account.id())
+                .categoryId(this.category.getId().id())
+                .amount(this.amount)
+                .expenseDate(this.expenseDate)
+                .paymentType(this.paymentType)
+                .build());
+    }
+
+    public void update(MonetaryAmount amount,
+                       PaymentType paymentType,
+                       LocalDate expenseDate,
+                       String description,
+                       Category category) {
+        this.amount = greaterThanZero(amount, "amount must be greater than 0.");
+        this.category = notNull(category, "category cannot be null.");
+        this.paymentType = isNull(paymentType) ? PaymentType.CARD : paymentType;
+        this.expenseDate = isNull(expenseDate) ? LocalDate.now() : expenseDate;
+        this.description = description;
+
+        registerEvent(ExpenseUpdated.builder()
                 .expenseId(this.id.id())
                 .accountId(this.account.id())
                 .categoryId(this.category.getId().id())

@@ -42,6 +42,17 @@ public interface Failure {
         return new ConflictFailure(message);
     }
 
+
+    /**
+     * Creates a {@link ForbiddenFailure} instance with the provided message.
+     *
+     * @param message The message describing the forbidden failure.
+     * @return A {@link ForbiddenFailure} instance.
+     */
+    static Failure ofForbidden(String message) {
+        return new ForbiddenFailure(message);
+    }
+
     record ValidationFailure(String message, Collection<FieldViolation> fieldViolations) implements Failure {
 
         public ValidationFailure {
@@ -53,6 +64,9 @@ public interface Failure {
     }
 
     record ConflictFailure(String message) implements Failure {
+    }
+
+    record ForbiddenFailure(String message) implements Failure {
     }
 
     @Builder
