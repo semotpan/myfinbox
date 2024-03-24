@@ -12,8 +12,7 @@ import java.util.UUID;
 
 import static io.myfinbox.expense.application.CategoryService.CategoryCommand;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.created;
-import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
@@ -36,6 +35,12 @@ final class ExpenseCategoryController implements ExpenseCategoryControllerApi {
     public ResponseEntity<?> update(@PathVariable UUID categoryId, @RequestBody ExpenseCategoryResource resource) {
         return categoryService.update(categoryId, new CategoryCommand(resource.getName(), resource.getAccountId()))
                 .fold(apiFailureHandler::handle, category -> ok(toResource(category)));
+    }
+
+    @DeleteMapping(path = "/{categoryId}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> delete(@PathVariable UUID categoryId) {
+        return categoryService.delete(categoryId)
+                .fold(apiFailureHandler::handle, ok -> noContent().build());
     }
 
     private ExpenseCategoryResource toResource(Category category) {

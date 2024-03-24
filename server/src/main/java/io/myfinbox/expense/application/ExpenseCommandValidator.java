@@ -69,7 +69,7 @@ final class ExpenseCommandValidator {
             return Valid(amount);
         }
 
-        var message = "Amount must be positive value.";
+        var message = "Amount must be a positive value.";
         if (isNull(amount))
             message = "Amount cannot be null.";
 

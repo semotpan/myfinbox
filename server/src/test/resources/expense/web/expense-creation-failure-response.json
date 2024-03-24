@@ -1,7 +1,7 @@
 {
   "status": 422,
   "errorCode": "UNPROCESSABLE_ENTITY",
-  "message": "The validation for the create expense request has failed.",
+  "message": "Validation failed for the create expense request.",
   "errors": [
     {
       "field": "accountId",

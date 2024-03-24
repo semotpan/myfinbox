@@ -23,7 +23,7 @@ import static io.vavr.API.Valid;
 @RequiredArgsConstructor
 class CreateAccountService implements CreateAccountUseCase {
 
-    static final String ERROR_MESSAGE = "validation failed on create account request.";
+    static final String ERROR_MESSAGE = "Validation failed for the create account request.";
 
     private final CommandValidator validator = new CommandValidator();
     private final Accounts accounts;
@@ -36,7 +36,7 @@ class CreateAccountService implements CreateAccountUseCase {
         }
 
         if (accounts.existsByEmailAddress(new Account.EmailAddress(cmd.emailAddress()))) {
-            return Either.left(Failure.ofConflict("email address '%s' already exists.".formatted(cmd.emailAddress())));
+            return Either.left(Failure.ofConflict("Email address '%s' already exists.".formatted(cmd.emailAddress())));
         }
 
         var account = Account.builder()
@@ -66,7 +66,7 @@ class CreateAccountService implements CreateAccountUseCase {
 
             return Invalid(FieldViolation.builder()
                     .field(FIELD_FIRST_NAME)
-                    .message("first name length cannot be more than '%d'.".formatted(Account.MAX_LENGTH))
+                    .message("First name length cannot exceed '%d' characters.".formatted(Account.MAX_LENGTH))
                     .rejectedValue(firstName)
                     .build());
         }
@@ -79,7 +79,7 @@ class CreateAccountService implements CreateAccountUseCase {
 
             return Invalid(FieldViolation.builder()
                     .field(FIELD_LAST_NAME)
-                    .message("last name length cannot be more than '%d'.".formatted(Account.MAX_LENGTH))
+                    .message("Last name length cannot exceed '%d' characters.".formatted(Account.MAX_LENGTH))
                     .rejectedValue(lastName)
                     .build());
         }
@@ -88,7 +88,7 @@ class CreateAccountService implements CreateAccountUseCase {
             if (StringUtils.isBlank(emailAddress)) {
                 return Invalid(FieldViolation.builder()
                         .field(FIELD_EMAIL_ADDRESS)
-                        .message("email address cannot be empty.")
+                        .message("Email address cannot be empty.")
                         .rejectedValue(emailAddress)
                         .build());
             }
@@ -96,7 +96,7 @@ class CreateAccountService implements CreateAccountUseCase {
             if (Account.MAX_LENGTH < emailAddress.length()) {
                 return Invalid(FieldViolation.builder()
                         .field(FIELD_EMAIL_ADDRESS)
-                        .message("email address length cannot be more than '%s'.".formatted(Account.MAX_LENGTH))
+                        .message("Email address length cannot exceed '%d' characters.".formatted(Account.MAX_LENGTH))
                         .rejectedValue(emailAddress)
                         .build());
             }
@@ -104,7 +104,7 @@ class CreateAccountService implements CreateAccountUseCase {
             if (!Pattern.compile(Account.patternRFC5322).matcher(emailAddress).matches()) {
                 return Invalid(FieldViolation.builder()
                         .field(FIELD_EMAIL_ADDRESS)
-                        .message("email address must follow RFC 5322 standard.")
+                        .message("Email address must follow RFC 5322 standard.")
                         .rejectedValue(emailAddress)
                         .build());
             }

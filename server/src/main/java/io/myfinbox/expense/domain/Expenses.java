@@ -7,4 +7,7 @@ import static io.myfinbox.expense.domain.Expense.ExpenseIdentifier;
 
 @Repository
 public interface Expenses extends JpaRepository<Expense, ExpenseIdentifier> {
+
+    boolean existsByCategory(Category category);
+
 }

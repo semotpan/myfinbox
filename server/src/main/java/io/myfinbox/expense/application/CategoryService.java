@@ -38,6 +38,14 @@ public interface CategoryService {
      */
     Either<Failure, Category> update(UUID categoryId, CategoryCommand command);
 
+    /**
+     * Deletes a category based on the provided category ID.
+     *
+     * @param categoryId The ID of the category to delete.
+     * @return {@link Either} a {@link Failure} instance if the category deletion fails, or {@code null} if successful.
+     */
+    Either<Failure, Void> delete(UUID categoryId);
+
     record CategoryCommand(String name, UUID accountId) {
 
         public static final String FIELD_NAME = "name";
