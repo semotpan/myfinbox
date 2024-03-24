@@ -1,10 +1,7 @@
 package io.myfinbox.expense.application;
 
-import io.myfinbox.expense.domain.AccountIdentifier;
-import io.myfinbox.expense.domain.Categories;
-import io.myfinbox.expense.domain.Category;
+import io.myfinbox.expense.domain.*;
 import io.myfinbox.expense.domain.Category.CategoryIdentifier;
-import io.myfinbox.expense.domain.DefaultCategories;
 import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.Failure.FieldViolation;
 import io.vavr.collection.Seq;
@@ -30,14 +27,16 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @RequiredArgsConstructor
 class DefaultCategoryService implements CategoryService {
 
-    public static final String VALIDATION_CREATE_FAILURE_MESSAGE = "The validation for the create category expense request has failed.";
-    public static final String VALIDATION_UPDATE_FAILURE_MESSAGE = "The validation for the update category expense request has failed.";
-    public static final String CATEGORY_NAME_DUPLICATE_MESSAGE = "Category name already exists.";
-    public static final String CATEGORY_NOT_FOUND_MESSAGE = "Category not found.";
+    public static final String VALIDATION_CREATE_FAILURE_MESSAGE = "Validation failed for the create category expense request.";
+    public static final String VALIDATION_UPDATE_FAILURE_MESSAGE = "Validation failed for the update category expense request.";
+    public static final String CATEGORY_NAME_DUPLICATE_MESSAGE = "A category expense with the same name already exists.";
+    public static final String CATEGORY_NOT_FOUND_MESSAGE = "Category expense not found.";
+    public static final String CATEGORY_IN_USE_FAILURE_MESSAGE = "Category expense is currently in use.";
 
     private final CategoryCommandValidator validator = new CategoryCommandValidator();
 
     private final Categories categories;
+    private final Expenses expenses;
 
     @Override
     @Transactional
@@ -104,6 +103,27 @@ class DefaultCategoryService implements CategoryService {
         return Either.right(category.get());
     }
 
+    @Override
+    @Transactional
+    public Either<Failure, Void> delete(UUID categoryId) {
+        if (isNull(categoryId)) {
+            return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
+        }
+
+        var category = categories.findById(new CategoryIdentifier(categoryId));
+        if (category.isEmpty()) {
+            return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
+        }
+
+        if (expenses.existsByCategory(category.get())) {
+            return Either.left(Failure.ofConflict(CATEGORY_IN_USE_FAILURE_MESSAGE));
+        }
+
+        categories.delete(category.get());
+
+        return Either.right(null);
+    }
+
     private static final class CategoryCommandValidator {
 
         Validation<Seq<FieldViolation>, CategoryCommand> validate(CategoryCommand command) {
@@ -127,7 +147,7 @@ class DefaultCategoryService implements CategoryService {
             if (!isBlank(name) && name.length() <= Category.NAME_MAX_LENGTH)
                 return Valid(name);
 
-            var message = format("Name length cannot be more than {0}.", Category.NAME_MAX_LENGTH);
+            var message = format("Name length cannot exceed {0} characters.", Category.NAME_MAX_LENGTH);
             if (isBlank(name))
                 message = "Name cannot be empty.";
 

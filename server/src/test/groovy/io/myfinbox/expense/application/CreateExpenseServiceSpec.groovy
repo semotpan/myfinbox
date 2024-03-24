@@ -1,6 +1,5 @@
 package io.myfinbox.expense.application
 
-
 import io.myfinbox.expense.domain.AccountIdentifier
 import io.myfinbox.expense.domain.Categories
 import io.myfinbox.expense.domain.Expense
@@ -10,6 +9,7 @@ import spock.lang.Specification
 import spock.lang.Tag
 
 import static io.myfinbox.expense.DataSamples.*
+import static io.myfinbox.expense.application.CreateExpenseService.CATEGORY_NOT_FOUND_MESSAGE
 import static io.myfinbox.expense.application.CreateExpenseService.VALIDATION_FAILURE_MESSAGE
 import static io.myfinbox.expense.domain.Category.CategoryIdentifier
 
@@ -27,16 +27,16 @@ class CreateExpenseServiceSpec extends Specification {
     }
 
     def "should fail expense creation when accountId is null"() {
-        given: 'new command with null accountId'
+        given: 'a new expense command with null accountId'
         def command = newSampleExpenseCommand(accountId: null)
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with a null accountId'
         def either = service.create(command)
 
-        then: 'failure result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
-        and: 'validation failure on accountId field'
+        and: 'the failure message indicates validation failure for create expense request'
         assert either.getLeft() == Failure.ofValidation(VALIDATION_FAILURE_MESSAGE, [
                 Failure.FieldViolation.builder()
                         .field('accountId')
@@ -46,16 +46,16 @@ class CreateExpenseServiceSpec extends Specification {
     }
 
     def "should fail expense creation when categoryId is null"() {
-        given: 'new command with null categoryId'
+        given: 'a new expense command with null categoryId'
         def command = newSampleExpenseCommand(categoryId: null)
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with a null categoryId'
         def either = service.create(command)
 
-        then: 'failure result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
-        and: 'validation failure on categoryId field'
+        and: 'the failure message indicates validation failure for create expense request'
         assert either.getLeft() == Failure.ofValidation(VALIDATION_FAILURE_MESSAGE, [
                 Failure.FieldViolation.builder()
                         .field('categoryId')
@@ -65,13 +65,13 @@ class CreateExpenseServiceSpec extends Specification {
     }
 
     def "should fail expense creation when paymentType is invalid"() {
-        given: 'new command with invalid payment type'
+        given: 'a new command with an invalid payment type'
         def command = newSampleExpenseCommand(paymentType: paymentType)
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with an invalid paymentType'
         def either = service.create(command)
 
-        then: 'failure result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
         and: 'validation failure on paymentType field'
@@ -91,13 +91,13 @@ class CreateExpenseServiceSpec extends Specification {
     }
 
     def "should fail expense creation when amount is invalid"() {
-        given: 'new command with invalid amount'
+        given: 'a new command with an invalid amount'
         def command = newSampleExpenseCommand(amount: value)
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with an invalid amount'
         def either = service.create(command)
 
-        then: 'result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
         and: 'validation failure on amount field'
@@ -112,18 +112,18 @@ class CreateExpenseServiceSpec extends Specification {
         where:
         value  | failMessage
         null   | 'Amount cannot be null.'
-        0.0    | 'Amount must be positive value.'
-        -25.56 | 'Amount must be positive value.'
+        0.0    | 'Amount must be a positive value.'
+        -25.56 | 'Amount must be a positive value.'
     }
 
     def "should fail expense creation when currencyCode is invalid"() {
-        given: 'new command with invalid currencyCode'
+        given: 'a new command with an invalid currencyCode'
         def command = newSampleExpenseCommand(currencyCode: currencyCode)
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with an invalid currencyCode'
         def either = service.create(command)
 
-        then: 'failure result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
         and: 'validation failure on currencyCode field'
@@ -144,13 +144,13 @@ class CreateExpenseServiceSpec extends Specification {
     }
 
     def "should fail expense creation when expenseDate is null"() {
-        given: 'new command with null expenseDate'
+        given: 'a new command with a null expenseDate'
         def command = newSampleExpenseCommand(expenseDate: null)
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with a null expenseDate'
         def either = service.create(command)
 
-        then: 'failure result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
         and: 'validation failure on expenseDate field'
@@ -166,33 +166,33 @@ class CreateExpenseServiceSpec extends Specification {
         setup: 'repository mock behavior'
         1 * categories.findByIdAndAccount(_ as CategoryIdentifier, _ as AccountIdentifier) >> Optional.empty()
 
-        when: 'expense fails to create'
+        when: 'attempting to create an expense with a non-existing category'
         def either = service.create(newSampleExpenseCommand())
 
-        then: 'failure result is present'
+        then: 'a failure result is present'
         assert either.isLeft()
 
-        and: 'not found failure for provided category is available'
-        assert either.getLeft() == Failure.ofNotFound('Category for the provided account was not found.')
+        and: 'not found failure for the provided category is available'
+        assert either.getLeft() == Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE)
     }
 
     def "should create an expense"() {
         setup: 'repository mock behavior and interaction'
         1 * categories.findByIdAndAccount(_ as CategoryIdentifier, _ as AccountIdentifier) >> Optional.of(newSampleCategory())
 
-        when: 'new expense is created'
+        when: 'creating a new expense'
         def either = service.create(newSampleExpenseCommand())
 
         then: 'expense value is present'
         assert either.isRight()
 
-        and: 'expense is build as expected'
+        and: 'expense is built as expected'
         assert either.get() == newSampleExpense([
                 id               : [id: either.get().getId().toString()],
                 creationTimestamp: either.get().getCreationTimestamp().toString(),
         ])
 
-        and: 'expenses interaction was done'
+        and: 'expense is saved in the repository'
         1 * expenses.save(_ as Expense)
     }
 }

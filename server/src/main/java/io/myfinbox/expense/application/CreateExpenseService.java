@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class CreateExpenseService implements CreateExpenseUseCase {
 
-    static final String VALIDATION_FAILURE_MESSAGE = "The validation for the create expense request has failed.";
-    static final String CATEGORY_NOT_FOUND_MESSAGE = "Category for the provided account was not found.";
+    static final String VALIDATION_FAILURE_MESSAGE = "Validation failed for the create expense request.";
+    static final String CATEGORY_NOT_FOUND_MESSAGE = "Category not found for the provided account.";
 
     private final ExpenseCommandValidator validator = new ExpenseCommandValidator();
 

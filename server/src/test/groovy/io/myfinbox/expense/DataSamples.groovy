@@ -19,7 +19,7 @@ class DataSamples {
     static accountId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
     static categoryId = "3b257779-a5db-4e87-9365-72c6f8d4977d"
     static timestamp = "2024-03-23T10:00:04.224870Z"
-    static expenseDate = "2023-10-13"
+    static expenseDate = "2024-03-23"
     static amount = 10.0
     static currency = 'EUR'
 

@@ -14,8 +14,8 @@ import static org.apache.commons.lang3.RandomStringUtils.random
 @Tag("unit")
 class CreateAccountServiceSpec extends Specification {
 
-    static EMAIL_EMPTY_FIELD_ERROR = "email address cannot be empty."
-    static RFC_EMAIL_FIELD_ERROR = "email address must follow RFC 5322 standard."
+    static EMAIL_EMPTY_FIELD_ERROR = "Email address cannot be empty."
+    static RFC_EMAIL_FIELD_ERROR = "Email address must follow RFC 5322 standard."
 
     Accounts accounts
     CreateAccountService service
@@ -40,7 +40,7 @@ class CreateAccountServiceSpec extends Specification {
         assert either.getLeft() == Failure.ofValidation(CreateAccountService.ERROR_MESSAGE, [
                 Failure.FieldViolation.builder()
                         .field('firstName')
-                        .message("first name length cannot be more than '${Account.MAX_LENGTH}'.")
+                        .message("First name length cannot exceed '${Account.MAX_LENGTH}' characters.")
                         .rejectedValue(value)
                         .build()
         ])
@@ -61,7 +61,7 @@ class CreateAccountServiceSpec extends Specification {
         assert either.getLeft() == Failure.ofValidation(CreateAccountService.ERROR_MESSAGE, [
                 Failure.FieldViolation.builder()
                         .field('lastName')
-                        .message("last name length cannot be more than '${Account.MAX_LENGTH}'.")
+                        .message("Last name length cannot exceed '${Account.MAX_LENGTH}' characters.")
                         .rejectedValue(value)
                         .build()
         ])
@@ -106,7 +106,7 @@ class CreateAccountServiceSpec extends Specification {
         "a\"b(c)d,e:f;g<h>i[j\\k]l@example.com"      | RFC_EMAIL_FIELD_ERROR
         "this is\"not\\allowed@example.com"          | RFC_EMAIL_FIELD_ERROR
         "this\\ still\\\"not\\\\allowed@example.com" | RFC_EMAIL_FIELD_ERROR
-        "%s@gmail.com".formatted(randString(256))    | "email address length cannot be more than '${Account.MAX_LENGTH}'."
+        "%s@gmail.com".formatted(randString(256))    | "Email address length cannot exceed '${Account.MAX_LENGTH}' characters."
     }
 
     def "should create an account"() {

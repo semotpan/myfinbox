@@ -22,6 +22,7 @@ import spock.lang.Tag
 import static io.myfinbox.expense.DataSamples.newValidExpenseCategoryResource
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpStatus.*
 import static org.springframework.http.MediaType.APPLICATION_JSON
@@ -38,7 +39,7 @@ class ExpenseCategoryControllerSpec extends Specification {
     TestRestTemplate restTemplate
 
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'expensecategory')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'expenses', 'expensecategory')
     }
 
     def "Should create a new category expense"() {
@@ -101,6 +102,27 @@ class ExpenseCategoryControllerSpec extends Specification {
         JSONAssert.assertEquals(expectUpdateNotFoundFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql('/expense/web/expensecategory-create.sql')
+    def "should delete an expense category"() {
+        when: 'expense category is deleted'
+        def response = deleteExpenseCategory()
+
+        then: 'response status is no content'
+        assert response.getStatusCode() == NO_CONTENT
+    }
+
+    @Sql(['/expense/web/expensecategory-create.sql', '/expense/web/expense-create.sql'])
+    def "Should fail delete when expense category is in use"() {
+        when: 'expense category fails to delete'
+        def response = deleteExpenseCategory()
+
+        then: 'response status is conflict'
+        assert response.getStatusCode() == CONFLICT
+
+        and: 'response body contains conflict failure response'
+        JSONAssert.assertEquals(expectDeleteConflictFailure(), response.getBody(), LENIENT)
+    }
+
     private postExpenseCategory(String request) {
         restTemplate.postForEntity('/expenses/category', entityRequest(request), String.class)
     }
@@ -110,6 +132,15 @@ class ExpenseCategoryControllerSpec extends Specification {
                 "/expenses/category/${DataSamples.categoryId}",
                 PUT,
                 entityRequest(request),
+                String.class
+        )
+    }
+
+    private deleteExpenseCategory() {
+        restTemplate.exchange(
+                "/expenses/category/${DataSamples.categoryId}",
+                DELETE,
+                entityRequest(null),
                 String.class
         )
     }
@@ -142,7 +173,15 @@ class ExpenseCategoryControllerSpec extends Specification {
         JsonOutput.toJson([
                 status   : 404,
                 errorCode: 'NOT_FOUND',
-                message  : 'Category not found.'
+                message  : 'Category expense not found.'
+        ])
+    }
+
+    def expectDeleteConflictFailure() {
+        JsonOutput.toJson([
+                status   : 409,
+                errorCode: 'CONFLICT',
+                message  : 'Category expense is currently in use.'
         ])
     }
 }
