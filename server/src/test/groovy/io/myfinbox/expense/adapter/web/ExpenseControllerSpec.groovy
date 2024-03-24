@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
 import io.myfinbox.expense.ExpenseCreated
+import io.myfinbox.expense.ExpenseUpdated
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,12 +22,11 @@ import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
 
-import static io.myfinbox.expense.DataSamples.newSampleExpenseCreatedEvent
-import static io.myfinbox.expense.DataSamples.newValidExpenseResource
+import static io.myfinbox.expense.DataSamples.*
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import static org.springframework.http.HttpStatus.CREATED
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
+import static org.springframework.http.HttpMethod.PUT
+import static org.springframework.http.HttpStatus.*
 import static org.springframework.http.MediaType.APPLICATION_JSON
 
 @Tag("integration")
@@ -85,8 +85,69 @@ class ExpenseControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedCreationFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql(['/expense/web/expensecategory-create.sql', '/expense/web/expense-create.sql'])
+    def "should update an expense"() {
+        given: 'user wants to update an existing expense'
+        var request = newValidExpenseResource(
+                categoryId: categoryId2,
+                paymentType: "Cash",
+                amount: 50,
+                currencyCode: "MDL",
+                expenseDate: '2024-03-19',
+                description: 'My hobbies'
+        )
+
+        when: 'expense is updated'
+        var response = putAnExpense(request)
+
+        then: 'response status is ok'
+        assert response.getStatusCode() == OK
+
+        and: 'body contains updated resource'
+        JSONAssert.assertEquals(expectedUpdatedResource(), response.getBody(), LENIENT)
+
+        and: 'expense updated event raised'
+        assert events.ofType(ExpenseUpdated.class).contains(
+                newSampleExpenseUpdatedCreatedEvent(
+                        categoryId: categoryId2,
+                        paymentType: "CASH",
+                        amount: [
+                                amount  : 50,
+                                currency: "MDL"
+                        ],
+                        expenseDate: '2024-03-19'
+                )
+        )
+    }
+
+    @Sql(['/expense/web/expensecategory-create.sql', '/expense/web/expense-create.sql'])
+    def "should fail updating when provided category not found"() {
+        given: 'user wants to update an existing expense'
+        var request = newValidExpenseResource(
+                categoryId: UUID.randomUUID()
+        )
+
+        when: 'expense fails to update'
+        var response = postNewExpense(request)
+
+        then: 'response has status code not found'
+        assert response.getStatusCode() == NOT_FOUND
+
+        and: 'response body contains not found failure response'
+        JSONAssert.assertEquals(expectedUpdateFailure(), response.getBody(), LENIENT)
+    }
+
     def postNewExpense(String req) {
         restTemplate.postForEntity('/expenses', entityRequest(req), String.class)
+    }
+
+    def putAnExpense(String req) {
+        restTemplate.exchange(
+                "/expenses/${expenseId}",
+                PUT,
+                entityRequest(req),
+                String.class
+        )
     }
 
     def entityRequest(String req) {
@@ -107,9 +168,28 @@ class ExpenseControllerSpec extends Specification {
         )
     }
 
+    def expectedUpdatedResource() {
+        newValidExpenseResource(
+                categoryId: categoryId2,
+                paymentType: "Cash",
+                amount: 50,
+                currencyCode: "MDL",
+                expenseDate: '2024-03-19',
+                description: 'My hobbies'
+        )
+    }
+
     def expectedCreationFailure() {
         def filePath = 'expense/web/expense-creation-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedUpdateFailure() {
+        JsonOutput.toJson([
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Category not found for the provided account."
+        ])
     }
 }

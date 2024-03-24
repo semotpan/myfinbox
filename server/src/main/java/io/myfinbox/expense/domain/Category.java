@@ -52,6 +52,10 @@ public final class Category {
         return this.name.equalsIgnoreCase(name);
     }
 
+    public boolean matches(CategoryIdentifier identifier) {
+        return this.id.equals(identifier);
+    }
+
     @Embeddable
     public record CategoryIdentifier(UUID id) implements Serializable {
 

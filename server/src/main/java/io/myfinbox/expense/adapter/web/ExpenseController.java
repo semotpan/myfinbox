@@ -2,18 +2,19 @@ package io.myfinbox.expense.adapter.web;
 
 import io.myfinbox.expense.application.CreateExpenseUseCase;
 import io.myfinbox.expense.application.ExpenseCommand;
+import io.myfinbox.expense.application.UpdateExpenseUseCase;
 import io.myfinbox.expense.domain.Expense;
 import io.myfinbox.shared.ApiFailureHandler;
 import io.myfinbox.shared.ExpenseResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
@@ -22,6 +23,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 final class ExpenseController implements ExpenseControllerApi {
 
     private final CreateExpenseUseCase createExpenseUseCase;
+    private final UpdateExpenseUseCase updateExpenseUseCase;
     private final ApiFailureHandler apiFailureHandler;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -30,6 +32,12 @@ final class ExpenseController implements ExpenseControllerApi {
                 .fold(apiFailureHandler::handle,
                         expense -> created(fromCurrentRequest().path("/{id}").build(expense.getId().id()))
                                 .body(toResource(expense)));
+    }
+
+    @PutMapping(path = "/{expenseId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> update(@PathVariable UUID expenseId, @RequestBody ExpenseResource request) {
+        return updateExpenseUseCase.update(expenseId, toCommand(request))
+                .fold(apiFailureHandler::handle, expense -> ok().body(toResource(expense)));
     }
 
     private ExpenseCommand toCommand(ExpenseResource request) {

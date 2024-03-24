@@ -27,6 +27,7 @@ public final class ApiFailureHandler {
         return switch (failure) {
             case NotFoundFailure(var message) -> notFound(message);
             case ConflictFailure(var message) -> conflict(message);
+            case ForbiddenFailure(var message) -> forbidden(message);
             case ValidationFailure(var msg, var fieldViolations) -> unprocessableEntity(map(fieldViolations), msg);
             default -> throw new IllegalArgumentException("No handler found");
         };
