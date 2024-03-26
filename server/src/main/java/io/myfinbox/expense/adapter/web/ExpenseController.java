@@ -1,6 +1,7 @@
 package io.myfinbox.expense.adapter.web;
 
 import io.myfinbox.expense.application.CreateExpenseUseCase;
+import io.myfinbox.expense.application.DeleteExpenseUseCase;
 import io.myfinbox.expense.application.ExpenseCommand;
 import io.myfinbox.expense.application.UpdateExpenseUseCase;
 import io.myfinbox.expense.domain.Expense;
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.created;
-import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
@@ -24,6 +24,7 @@ final class ExpenseController implements ExpenseControllerApi {
 
     private final CreateExpenseUseCase createExpenseUseCase;
     private final UpdateExpenseUseCase updateExpenseUseCase;
+    private final DeleteExpenseUseCase deleteExpenseUseCase;
     private final ApiFailureHandler apiFailureHandler;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -38,6 +39,12 @@ final class ExpenseController implements ExpenseControllerApi {
     public ResponseEntity<?> update(@PathVariable UUID expenseId, @RequestBody ExpenseResource request) {
         return updateExpenseUseCase.update(expenseId, toCommand(request))
                 .fold(apiFailureHandler::handle, expense -> ok().body(toResource(expense)));
+    }
+
+    @DeleteMapping(path = "/{expenseId}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> delete(@PathVariable UUID expenseId) {
+        return deleteExpenseUseCase.delete(expenseId)
+                .fold(apiFailureHandler::handle, ok -> noContent().build());
     }
 
     private ExpenseCommand toCommand(ExpenseResource request) {

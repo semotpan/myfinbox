@@ -67,7 +67,8 @@ public interface ExpenseCategoryControllerApi {
             security = {@SecurityRequirement(name = "openId")},
             tags = {TAG})
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successful Operation"),
+            @ApiResponse(responseCode = "204", description = "Successful Operation",
+                    content = @Content),
             @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Category not found",

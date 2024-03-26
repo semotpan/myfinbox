@@ -4,6 +4,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
 import io.myfinbox.expense.ExpenseCreated
+import io.myfinbox.expense.ExpenseDeleted
 import io.myfinbox.expense.ExpenseUpdated
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,6 +26,7 @@ import spock.lang.Tag
 import static io.myfinbox.expense.DataSamples.*
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.PUT
 import static org.springframework.http.HttpStatus.*
 import static org.springframework.http.MediaType.APPLICATION_JSON
@@ -90,7 +92,7 @@ class ExpenseControllerSpec extends Specification {
         given: 'user wants to update an existing expense'
         var request = newValidExpenseResource(
                 categoryId: categoryId2,
-                paymentType: "Cash",
+                paymentType: "Card",
                 amount: 50,
                 currencyCode: "MDL",
                 expenseDate: '2024-03-19',
@@ -110,7 +112,7 @@ class ExpenseControllerSpec extends Specification {
         assert events.ofType(ExpenseUpdated.class).contains(
                 newSampleExpenseUpdatedCreatedEvent(
                         categoryId: categoryId2,
-                        paymentType: "CASH",
+                        paymentType: "CARD",
                         amount: [
                                 amount  : 50,
                                 currency: "MDL"
@@ -137,6 +139,29 @@ class ExpenseControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedUpdateFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql(['/expense/web/expensecategory-create.sql', '/expense/web/expense-create.sql'])
+    def "should delete an expense"() {
+        when: 'expense is deleted'
+        var response = deleteAnExpense()
+
+        then: 'response status is created'
+        assert response.getStatusCode() == NO_CONTENT
+
+        and: 'expense deleted event raised'
+        assert events.ofType(ExpenseDeleted.class).contains(newSampleExpenseDeletedEvent())
+    }
+
+    def "should fail delete when expense not found"() {
+        when: 'expense fails to delete'
+        var response = deleteAnExpense()
+
+        then: 'response has status code not found'
+        assert response.getStatusCode() == NOT_FOUND
+
+        and: 'response body contains not found failure response'
+        JSONAssert.assertEquals(expectedDeleteFailure(), response.getBody(), LENIENT)
+    }
+
     def postNewExpense(String req) {
         restTemplate.postForEntity('/expenses', entityRequest(req), String.class)
     }
@@ -146,6 +171,15 @@ class ExpenseControllerSpec extends Specification {
                 "/expenses/${expenseId}",
                 PUT,
                 entityRequest(req),
+                String.class
+        )
+    }
+
+    def deleteAnExpense() {
+        restTemplate.exchange(
+                "/expenses/${expenseId}",
+                DELETE,
+                entityRequest(null),
                 String.class
         )
     }
@@ -171,7 +205,7 @@ class ExpenseControllerSpec extends Specification {
     def expectedUpdatedResource() {
         newValidExpenseResource(
                 categoryId: categoryId2,
-                paymentType: "Cash",
+                paymentType: "Card",
                 amount: 50,
                 currencyCode: "MDL",
                 expenseDate: '2024-03-19',
@@ -190,6 +224,14 @@ class ExpenseControllerSpec extends Specification {
                 status   : 404,
                 errorCode: "NOT_FOUND",
                 message  : "Category not found for the provided account."
+        ])
+    }
+
+    def expectedDeleteFailure() {
+        JsonOutput.toJson([
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Expense was not found."
         ])
     }
 }
