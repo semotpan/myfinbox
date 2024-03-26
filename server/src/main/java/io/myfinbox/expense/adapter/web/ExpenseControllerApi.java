@@ -57,4 +57,20 @@ public interface ExpenseControllerApi {
     })
     ResponseEntity<?> update(@Parameter(description = "CategoryId to be updated", required = true) UUID expenseId,
                              @RequestBody(description = "Expense Resource to be updated", required = true) ExpenseResource resource);
+
+    @Operation(summary = "Delete an expense in the MyFinBox", description = "Delete an expense in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successful Operation",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Expense to be deleted was not found",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> delete(@Parameter(description = "ExpenseId to be deleted", required = true) UUID expenseId);
+
 }

@@ -16,7 +16,7 @@ public interface UpdateExpenseUseCase {
      *
      * @param expenseId The ID of the expense to be updated.
      * @param command   The command containing expense updating details.
-     * @return Either a Failure instance if the expense updating fails, or the updated Expense instance.
+     * @return {@link Either} a {@link Failure} instance if the expense updating fails, or the updated {@link Expense} instance.
      */
     Either<Failure, Expense> update(UUID expenseId, ExpenseCommand command);
 

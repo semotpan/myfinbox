@@ -67,7 +67,7 @@ class DataSamples {
             description : "Books buying",
     ]
 
-    static EXPENSE_CREATED_EVENT = [
+    static EXPENSE_EVENT = [
             expenseId  : expenseId,
             accountId  : accountId,
             categoryId : categoryId,
@@ -104,11 +104,15 @@ class DataSamples {
     }
 
     static newSampleExpenseCreatedEvent(map = [:]) {
-        MAPPER.readValue(JsonOutput.toJson(EXPENSE_CREATED_EVENT + map) as String, ExpenseCreated.class)
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_EVENT + map) as String, ExpenseCreated.class)
     }
 
     static newSampleExpenseUpdatedCreatedEvent(map = [:]) {
-        MAPPER.readValue(JsonOutput.toJson(EXPENSE_CREATED_EVENT + map) as String, ExpenseUpdated.class)
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_EVENT + map) as String, ExpenseUpdated.class)
+    }
+
+    static newSampleExpenseDeletedEvent(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_EVENT + map) as String, ExpenseDeleted.class)
     }
 
     static newSampleExpenseCategoryCommand(map = [:]) {

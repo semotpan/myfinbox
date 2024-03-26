@@ -2,6 +2,7 @@ package io.myfinbox.expense.domain;
 
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import io.myfinbox.expense.ExpenseCreated;
+import io.myfinbox.expense.ExpenseDeleted;
 import io.myfinbox.expense.ExpenseUpdated;
 import io.myfinbox.shared.PaymentType;
 import jakarta.persistence.*;
@@ -105,6 +106,17 @@ public class Expense extends AbstractAggregateRoot<Expense> {
 
     public String getCurrencyCode() {
         return amount.getCurrency().getCurrencyCode();
+    }
+
+    public void delete() {
+        registerEvent(ExpenseDeleted.builder()
+                .expenseId(this.id.id())
+                .accountId(this.account.id())
+                .categoryId(this.category.getId().id())
+                .amount(this.amount)
+                .expenseDate(this.expenseDate)
+                .paymentType(this.paymentType)
+                .build());
     }
 
     @Embeddable
