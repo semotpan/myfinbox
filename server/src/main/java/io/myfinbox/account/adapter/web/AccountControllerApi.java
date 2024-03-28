@@ -1,6 +1,6 @@
 package io.myfinbox.account.adapter.web;
 
-import io.myfinbox.shared.AccountCreateResource;
+import io.myfinbox.rest.AccountCreateResource;
 import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;

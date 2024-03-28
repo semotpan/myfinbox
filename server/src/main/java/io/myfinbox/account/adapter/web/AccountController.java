@@ -2,7 +2,7 @@ package io.myfinbox.account.adapter.web;
 
 import io.myfinbox.account.application.CreateAccountUseCase;
 import io.myfinbox.account.application.CreateAccountUseCase.CreateAccountCommand;
-import io.myfinbox.shared.AccountCreateResource;
+import io.myfinbox.rest.AccountCreateResource;
 import io.myfinbox.shared.ApiFailureHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

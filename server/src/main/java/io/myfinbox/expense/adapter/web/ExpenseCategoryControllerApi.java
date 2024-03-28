@@ -1,7 +1,7 @@
 package io.myfinbox.expense.adapter.web;
 
 import io.myfinbox.shared.ApiErrorResponse;
-import io.myfinbox.shared.ExpenseCategoryResource;
+import io.myfinbox.rest.ExpenseCategoryResource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;

@@ -3,7 +3,7 @@ package io.myfinbox.expense.adapter.web;
 import io.myfinbox.expense.application.CategoryService;
 import io.myfinbox.expense.domain.Category;
 import io.myfinbox.shared.ApiFailureHandler;
-import io.myfinbox.shared.ExpenseCategoryResource;
+import io.myfinbox.rest.ExpenseCategoryResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

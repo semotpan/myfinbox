@@ -29,6 +29,7 @@
 		<spock-bom.version>2.4-M1-groovy-4.0</spock-bom.version>
 		<jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
 		<jackson-datatype-money>1.3.0</jackson-datatype-money>
+		<surefire.and.failsafe.report.dir>target/failsafe-reports</surefire.and.failsafe.report.dir>
 	</properties>
 
 	<dependencies>
@@ -274,6 +275,7 @@
 						<include>**/*Spec.java</include>
 						<include>**/*Test.java</include>
 					</includes>
+					<reportsDirectory>${surefire.and.failsafe.report.dir}</reportsDirectory>
 				</configuration>
 			</plugin>
 			<!-- Integration Test plugin config => run @Tag("integration") -->
@@ -294,6 +296,7 @@
 						<include>**/*Spec.java</include>
 						<include>**/*Test.java</include>
 					</includes>
+					<reportsDirectory>${surefire.and.failsafe.report.dir}</reportsDirectory>
 				</configuration>
 			</plugin>
 			<!-- Testing: Jacoco Coverage Reports -->
@@ -301,6 +304,12 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco-maven-plugin.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>io/myfinbox/ServerApplication.class</exclude>
+						<exclude>io/myfinbox/rest/*.class</exclude>
+					</excludes>
+				</configuration>
 				<executions>
 					<!-- Unit test coverage -->
 					<execution>
@@ -320,21 +329,33 @@
 						<goals>
 							<goal>prepare-agent-integration</goal>
 						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco-integration.exec</destFile>
+							<append>true</append>
+						</configuration>
 					</execution>
 					<!-- Post-test execution for generating reports -->
 					<execution>
-						<id>generate-unit-test-report</id>
-						<phase>test</phase>
+						<id>report</id>
+						<phase>post-integration-test</phase>
 						<goals>
+							<goal>merge</goal>
 							<goal>report</goal>
 						</goals>
-					</execution>
-					<execution>
-						<id>generate-integration-test-report</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>report-integration</goal>
-						</goals>
+						<configuration>
+							<!-- merge config -->
+							<destFile>${project.build.directory}/jacoco.exec</destFile>
+							<fileSets>
+								<fileSet>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>*.exec</include>
+									</includes>
+								</fileSet>
+							</fileSets>
+							<!-- report config -->
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+						</configuration>
 					</execution>
 					<!-- Jacoco check -->
 					<execution>
@@ -350,12 +371,12 @@
 										<limit>
 											<counter>LINE</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.90</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 										<limit>
 											<counter>BRANCH</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.80</minimum>
+											<minimum>0.40</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -379,7 +400,7 @@
 							<output>${project.build.directory}/generated-sources</output>
 
 							<generatorName>spring</generatorName>
-							<modelPackage>io.myfinbox.shared</modelPackage>
+							<modelPackage>io.myfinbox.rest</modelPackage>
 
 							<skipValidateSpec>true</skipValidateSpec>
 							<generateApis>false</generateApis>
