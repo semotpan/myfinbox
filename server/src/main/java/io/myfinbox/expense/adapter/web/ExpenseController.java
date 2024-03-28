@@ -6,7 +6,7 @@ import io.myfinbox.expense.application.ExpenseCommand;
 import io.myfinbox.expense.application.UpdateExpenseUseCase;
 import io.myfinbox.expense.domain.Expense;
 import io.myfinbox.shared.ApiFailureHandler;
-import io.myfinbox.shared.ExpenseResource;
+import io.myfinbox.rest.ExpenseResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
