@@ -100,4 +100,27 @@ components:
           type: string
           readOnly: true
           example: 2024-03-23T10:00:04.224870Z
-          description: The timestamp when the expense was created (read-only).
+          description: The timestamp when the expense category was created (read-only).
+
+    IncomeSourceResource:
+      type: object
+      properties:
+        incomeSourceId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the income source (read-only).
+        accountId:
+          type: string
+          format: uuid
+          example: 3b257779-a5db-4e87-9365-72c6f8d4977d
+          description: The ID of the account that submitted the income source.
+        name:
+          type: string
+          example: Business
+          description: The name of the income source.
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the income source was created (read-only).
