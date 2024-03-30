@@ -24,7 +24,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE, force = true)
 public final class IncomeSource {
 
-    static final int MAX_LENGTH = 100;
+    public static final int NAME_MAX_LENGTH = 100;
 
     @EmbeddedId
     private final IncomeSourceIdentifier id;
@@ -39,9 +39,17 @@ public final class IncomeSource {
     public IncomeSource(String name, AccountIdentifier account) {
         this.id = new IncomeSourceIdentifier(UUID.randomUUID());
         this.account = notNull(account, "account cannot be null");
-        notBlank(name, "name cannot be blank");
-        this.name = doesNotOverflow(name, MAX_LENGTH, "name overflow, max length allowed '%d'".formatted(MAX_LENGTH));
+        setName(name);
         this.creationTimestamp = Instant.now();
+    }
+
+    public boolean sameName(String name) {
+        return this.name.equalsIgnoreCase(name);
+    }
+
+    public void setName(String name) {
+        notBlank(name, "name cannot be blank");
+        this.name = doesNotOverflow(name, NAME_MAX_LENGTH, "name overflow, max length allowed '%d'".formatted(NAME_MAX_LENGTH));
     }
 
     @Embeddable
