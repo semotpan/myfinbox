@@ -2,6 +2,7 @@ package io.myfinbox.income
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import groovy.json.JsonOutput
+import io.myfinbox.income.application.IncomeCommand
 import io.myfinbox.income.application.IncomeSourceService
 import io.myfinbox.income.domain.AccountIdentifier
 import io.myfinbox.income.domain.DefaultIncomeSources
@@ -47,6 +48,35 @@ class DataSamples {
             description      : "Dividends income",
     ]
 
+    static INCOME_COMMAND = [
+            accountId     : accountId,
+            incomeSourceId: incomeSourceId,
+            paymentType   : "Cash",
+            amount        : amount,
+            currencyCode  : currency,
+            incomeDate    : incomeDate,
+            description   : "Dividends income",
+    ]
+
+    static INCOME_RESOURCE = [
+            accountId     : accountId,
+            incomeSourceId: incomeSourceId,
+            paymentType   : "Cash",
+            amount        : amount,
+            currencyCode  : currency,
+            incomeDate    : incomeDate,
+            description   : "Dividends income",
+    ]
+
+    static INCOME_EVENT = [
+            incomeId      : incomeId,
+            accountId     : accountId,
+            incomeSourceId: incomeSourceId,
+            paymentType   : "CASH",
+            amount        : AMOUNT,
+            incomeDate    : incomeDate,
+    ]
+
     static INCOME_SOURCE_RESOURCE = [
             accountId: accountId,
             name     : name,
@@ -72,5 +102,17 @@ class DataSamples {
 
     static newValidIncomeSourceResource(map = [:]) {
         JsonOutput.toJson(INCOME_SOURCE_RESOURCE + map) as String
+    }
+
+    static newValidIncomeResource(map = [:]) {
+        JsonOutput.toJson(INCOME_RESOURCE + map) as String
+    }
+
+    static newValidIncomeCommand(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(INCOME_COMMAND + map) as String, IncomeCommand.class)
+    }
+
+    static newValidIncomeCreatedEvent(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(INCOME_EVENT + map) as String, IncomeCreated.class)
     }
 }

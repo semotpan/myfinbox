@@ -1,0 +1,31 @@
+{
+  "status": 422,
+  "errorCode": "UNPROCESSABLE_ENTITY",
+  "message": "Validation failed for the create income request.",
+  "errors": [
+    {
+      "field": "accountId",
+      "message": "AccountId cannot be null."
+    },
+    {
+      "field": "incomeSourceId",
+      "message": "IncomeSourceId cannot be null."
+    },
+    {
+      "field": "paymentType",
+      "message": "PaymentType must be 'Cash' or 'Card'."
+    },
+    {
+      "field": "amount",
+      "message": "Amount cannot be null."
+    },
+    {
+      "field": "currencyCode",
+      "message": "CurrencyCode cannot be null."
+    },
+    {
+      "field": "incomeDate",
+      "message": "IncomeDate cannot be null."
+    }
+  ]
+}
