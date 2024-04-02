@@ -124,12 +124,12 @@ class IncomeSourceControllerSpec extends Specification {
     }
 
     private postIncomeSource(String request) {
-        restTemplate.postForEntity('/incomes/income-source', entityRequest(request), String.class)
+        restTemplate.postForEntity('/v1/incomes/income-source', entityRequest(request), String.class)
     }
 
     private putIncomeSource(String request) {
         restTemplate.exchange(
-                "/incomes/income-source/${DataSamples.incomeSourceId}",
+                "/v1/incomes/income-source/${DataSamples.incomeSourceId}",
                 PUT,
                 entityRequest(request),
                 String.class
@@ -138,7 +138,7 @@ class IncomeSourceControllerSpec extends Specification {
 
     private deleteIncomeSource() {
         restTemplate.exchange(
-                "/incomes/income-source/${DataSamples.incomeSourceId}",
+                "/v1/incomes/income-source/${DataSamples.incomeSourceId}",
                 DELETE,
                 entityRequest(null),
                 String.class

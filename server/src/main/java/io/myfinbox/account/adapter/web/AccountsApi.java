@@ -17,7 +17,7 @@ import java.net.URI;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface AccountControllerApi {
+public interface AccountsApi {
 
     String TAGS = "accounts";
 

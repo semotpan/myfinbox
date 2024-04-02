@@ -1,6 +1,6 @@
-package io.myfinbox.income.adapter.web;
+package io.myfinbox.expense.adapter.web;
 
-import io.myfinbox.rest.IncomeSourceResource;
+import io.myfinbox.rest.ExpenseCategoryResource;
 import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,52 +19,52 @@ import java.util.UUID;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface IncomeSourceControllerApi {
+public interface ExpensesCategoryApi {
 
-    String TAG = "incomes";
+    String TAG = "expenses";
 
-    @Operation(summary = "Add a new income source in the MyFinBox",
-            description = "Add a new income source in the MyFinBox",
+    @Operation(summary = "Add a new expense category in the MyFinBox",
+            description = "Add a new expense category in the MyFinBox",
             security = {@SecurityRequirement(name = "openId")},
             tags = {TAG})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successful Operation",
-                    headers = @Header(name = LOCATION, description = "Created income source URI location", schema = @Schema(implementation = URI.class)),
-                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = IncomeSourceResource.class))),
+                    headers = @Header(name = LOCATION, description = "Created expense category URI location", schema = @Schema(implementation = URI.class)),
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ExpenseCategoryResource.class))),
             @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Income source name already exists",
+            @ApiResponse(responseCode = "409", description = "Category name already exists",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "422", description = "Request Schema Validation Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> create(@RequestBody(description = "Income Source Resource to be created", required = true) IncomeSourceResource resource);
+    ResponseEntity<?> create(@RequestBody(description = "Expense Category Resource to be created", required = true) ExpenseCategoryResource resource);
 
-    @Operation(summary = "Update an income source name in the MyFinBox",
-            description = "Update an income source name in the MyFinBox",
+    @Operation(summary = "Update an expense category name in the MyFinBox",
+            description = "Update an expense category name in the MyFinBox",
             security = {@SecurityRequirement(name = "openId")},
             tags = {TAG})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful Operation",
-                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = IncomeSourceResource.class))),
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ExpenseCategoryResource.class))),
             @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Income source not found",
+            @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Income source name already exists",
+            @ApiResponse(responseCode = "409", description = "Category name already exists",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "422", description = "Request Schema Validation Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> update(@Parameter(description = "Income Source ID to be updated", required = true) UUID incomeSourceId,
-                             @RequestBody(description = "Income Source Resource to be updated", required = true) IncomeSourceResource resource);
+    ResponseEntity<?> update(@Parameter(description = "CategoryId to be updated", required = true) UUID categoryId,
+                             @RequestBody(description = "Expense Category Resource to be updated", required = true) ExpenseCategoryResource resource);
 
-    @Operation(summary = "Delete an income source in the MyFinBox",
-            description = "Delete an income source in the MyFinBox, if there are no incomes using the income source",
+    @Operation(summary = "Delete an expense category in the MyFinBox",
+            description = "Delete an expense category in the MyFinBox, if there are no expenses using the category",
             security = {@SecurityRequirement(name = "openId")},
             tags = {TAG})
     @ApiResponses(value = {
@@ -72,12 +72,12 @@ public interface IncomeSourceControllerApi {
                     content = @Content),
             @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Income source not found",
+            @ApiResponse(responseCode = "404", description = "Category not found",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Income source in-use",
+            @ApiResponse(responseCode = "409", description = "Category in-use",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> delete(@Parameter(description = "IncomeSourceID to be deleted", required = true) UUID incomeSourceId);
+    ResponseEntity<?> delete(@Parameter(description = "CategoryId to be deleted", required = true) UUID categoryId);
 }

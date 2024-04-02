@@ -86,7 +86,7 @@ class AccountControllerSpec extends Specification {
     }
 
     def postNewAccount(String req) {
-        restTemplate.postForEntity('/accounts', entityRequest(req), String.class)
+        restTemplate.postForEntity('/v1/accounts', entityRequest(req), String.class)
     }
 
     def entityRequest(String req) {

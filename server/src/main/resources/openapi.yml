@@ -6,7 +6,17 @@ info:
   version: 1.0.0
 tags:
   - name: accounts
-    description: Everything about your Accounts
+    description: Operations related to accounts
+  - name: expenses
+    description: Operations related to incomes and income sources
+  - name: incomes
+    description: Operations related to incomes and income sources
+  - name: spending-plans
+    description: Operations related to spending plans
+
+servers:
+  - url: https://myfinbox.io/api/v1
+
 paths:
 components:
   schemas:

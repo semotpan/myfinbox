@@ -16,9 +16,9 @@ import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
-@RequestMapping(path = "/incomes/income-source")
+@RequestMapping(path = "/v1/incomes/income-source")
 @RequiredArgsConstructor
-final class IncomeSourceController implements IncomeSourceControllerApi {
+final class IncomeSourceController implements IncomesSourceApi {
 
     private final IncomeSourceService incomeSourceService;
     private final ApiFailureHandler apiFailureHandler;

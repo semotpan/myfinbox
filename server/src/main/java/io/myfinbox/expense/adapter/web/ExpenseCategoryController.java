@@ -16,9 +16,9 @@ import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
-@RequestMapping(path = "/expenses/category")
+@RequestMapping(path = "/v1/expenses/category")
 @RequiredArgsConstructor
-final class ExpenseCategoryController implements ExpenseCategoryControllerApi {
+final class ExpenseCategoryController implements ExpensesCategoryApi {
 
     private final CategoryService categoryService;
     private final ApiFailureHandler apiFailureHandler;
