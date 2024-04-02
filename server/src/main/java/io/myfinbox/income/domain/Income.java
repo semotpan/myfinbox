@@ -1,11 +1,12 @@
 package io.myfinbox.income.domain;
 
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
+import io.myfinbox.income.IncomeCreated;
 import io.myfinbox.shared.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CompositeType;
-import org.javamoney.moneta.Money;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.money.MonetaryAmount;
 import java.io.Serializable;
@@ -16,7 +17,6 @@ import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.greaterThanZero;
 import static io.myfinbox.shared.Guards.notNull;
-import static java.util.Objects.requireNonNull;
 import static lombok.AccessLevel.PRIVATE;
 
 /**
@@ -29,7 +29,7 @@ import static lombok.AccessLevel.PRIVATE;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor(access = PRIVATE, force = true) // JPA compliant
-public class Income {
+public class Income extends AbstractAggregateRoot<Income> {
 
     @EmbeddedId
     private final IncomeIdentifier id;
@@ -68,16 +68,15 @@ public class Income {
         this.paymentType = paymentType == null ? PaymentType.CARD : paymentType;
         this.incomeDate = incomeDate == null ? LocalDate.now() : incomeDate;
         this.description = description;
-    }
 
-    private MonetaryAmount requireValidAmount(MonetaryAmount amount) {
-        requireNonNull(amount, "amount cannot be null");
-
-        if (amount.isLessThanOrEqualTo(Money.of(BigDecimal.ZERO, amount.getCurrency()))) {
-            throw new IllegalArgumentException("amount must be positive value");
-        }
-
-        return amount;
+        registerEvent(IncomeCreated.builder()
+                .incomeId(this.id.id())
+                .accountId(this.account.id())
+                .amount(this.amount)
+                .incomeSourceId(this.incomeSource.getId().id())
+                .paymentType(this.paymentType)
+                .incomeDate(this.incomeDate)
+                .build());
     }
 
     public BigDecimal getAmountAsNumber() {

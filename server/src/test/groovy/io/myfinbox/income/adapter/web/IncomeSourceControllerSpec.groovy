@@ -42,7 +42,7 @@ class IncomeSourceControllerSpec extends Specification {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, 'incomes', 'incomesource')
     }
 
-    def "Should create a new income source"() {
+    def "should create a new income source"() {
         given: 'user wants to create a new income source'
         def request = newValidIncomeSourceResource()
 

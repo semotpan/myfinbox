@@ -1,4 +1,4 @@
-package io.myfinbox.expense.application;
+package io.myfinbox.income.application;
 
 import io.myfinbox.shared.Failure.FieldViolation;
 import io.myfinbox.shared.PaymentType;
@@ -10,24 +10,24 @@ import java.time.LocalDate;
 import java.util.Currency;
 import java.util.UUID;
 
-import static io.myfinbox.expense.application.ExpenseCommand.*;
+import static io.myfinbox.income.application.IncomeCommand.*;
 import static io.vavr.API.Invalid;
 import static io.vavr.API.Valid;
 import static java.math.BigDecimal.ZERO;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-final class ExpenseCommandValidator {
+final class IncomeCommandValidator {
 
-    Validation<Seq<FieldViolation>, ExpenseCommand> validate(ExpenseCommand command) {
+    Validation<Seq<FieldViolation>, IncomeCommand> validate(IncomeCommand command) {
         return Validation.combine(
                 validateAccountId(command.accountId()),
-                validateCategoryId(command.categoryId()),
+                validateIncomeSourceId(command.incomeSourceId()),
                 validatePaymentType(command.paymentType()),
                 validateAmount(command.amount()),
                 validateCurrencyCode(command.currencyCode()),
-                validateExpenseDate(command.expenseDate())
-        ).ap((accountId, categoryId, paymentType, amount, currencyCode, expenseDate) -> command);
+                validateIncomeDate(command.incomeDate())
+        ).ap((accountId, incomeSourceId, paymentType, amount, currencyCode, incomeDate) -> command);
     }
 
     private Validation<FieldViolation, UUID> validateAccountId(UUID accountId) {
@@ -41,14 +41,14 @@ final class ExpenseCommandValidator {
                 .build());
     }
 
-    private Validation<FieldViolation, UUID> validateCategoryId(UUID categoryId) {
-        if (nonNull(categoryId)) {
-            return Valid(categoryId);
+    private Validation<FieldViolation, UUID> validateIncomeSourceId(UUID incomeSourceId) {
+        if (nonNull(incomeSourceId)) {
+            return Valid(incomeSourceId);
         }
 
         return Invalid(FieldViolation.builder()
-                .field(FIELD_CATEGORY_ID)
-                .message("CategoryId cannot be null.")
+                .field(FIELD_INCOME_SOURCE_ID)
+                .message("IncomeSourceId cannot be null.")
                 .build());
     }
 
@@ -99,14 +99,14 @@ final class ExpenseCommandValidator {
                 .build());
     }
 
-    private Validation<FieldViolation, LocalDate> validateExpenseDate(LocalDate expenseDate) {
-        if (nonNull(expenseDate)) {
-            return Valid(expenseDate);
+    private Validation<FieldViolation, LocalDate> validateIncomeDate(LocalDate incomeDate) {
+        if (nonNull(incomeDate)) {
+            return Valid(incomeDate);
         }
 
         return Invalid(FieldViolation.builder()
-                .field(FIELD_EXPENSE_DATE)
-                .message("ExpenseDate cannot be null.")
+                .field(FIELD_INCOME_DATE)
+                .message("IncomeDate cannot be null.")
                 .build());
     }
 }

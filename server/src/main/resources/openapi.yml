@@ -134,3 +134,49 @@ components:
           readOnly: true
           example: 2024-03-23T10:00:04.224870Z
           description: The timestamp when the income source was created (read-only).
+
+    IncomeResource:
+      type: object
+      properties:
+        incomeId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the income (read-only).
+        accountId:
+          type: string
+          format: uuid
+          example: 3b257779-a5db-4e87-9365-72c6f8d4977d
+          description: The ID of the account that submitted the income.
+        incomeSourceId:
+          type: string
+          format: uuid
+          example: 3b257779-a5db-4e87-9365-72c6f8d4977d
+          description: The ID of the income source associated with the income for provided account ID.
+        paymentType:
+          type: string
+          example: Cash
+          description: The payment method used for the expense (Cash or Card).
+        amount:
+          type: number
+          example: 30.50
+          description: The amount of the income.
+        currencyCode:
+          type: string
+          example: MDL
+          pattern: '^[A-Z]{3}$'
+          description: The ISO 4217 currency code in uppercase (e.g., USD, EUR).
+        incomeDate:
+          type: string
+          format: date
+          example: 2023-04-01
+          description: The date of the income in ISO 8601 format (YYYY-MM-DD).
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the income was created (read-only).
+        description:
+          type: string
+          example: Base salary
+          description: Additional description attached to the income.
