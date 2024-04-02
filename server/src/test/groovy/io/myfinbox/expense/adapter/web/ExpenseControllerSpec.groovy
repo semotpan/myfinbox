@@ -163,12 +163,12 @@ class ExpenseControllerSpec extends Specification {
     }
 
     def postNewExpense(String req) {
-        restTemplate.postForEntity('/expenses', entityRequest(req), String.class)
+        restTemplate.postForEntity('/v1/expenses', entityRequest(req), String.class)
     }
 
     def putAnExpense(String req) {
         restTemplate.exchange(
-                "/expenses/${expenseId}",
+                "/v1/expenses/${expenseId}",
                 PUT,
                 entityRequest(req),
                 String.class
@@ -177,7 +177,7 @@ class ExpenseControllerSpec extends Specification {
 
     def deleteAnExpense() {
         restTemplate.exchange(
-                "/expenses/${expenseId}",
+                "/v1/expenses/${expenseId}",
                 DELETE,
                 entityRequest(null),
                 String.class

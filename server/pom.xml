@@ -401,6 +401,7 @@
 
 							<generatorName>spring</generatorName>
 							<modelPackage>io.myfinbox.rest</modelPackage>
+							<apiPackage>io.myfinbox.rest</apiPackage>
 
 							<skipValidateSpec>true</skipValidateSpec>
 							<generateApis>false</generateApis>
@@ -409,6 +410,7 @@
 							<configOptions>
 								<sourceFolder>./</sourceFolder>
 								<dateLibrary>java8-localdatetime</dateLibrary>
+								<intefaceOnly>true</intefaceOnly>
 								<hideGenerationTimestamp>true</hideGenerationTimestamp>
 								<useBeanValidation>true</useBeanValidation>
 								<performBeanValidation>true</performBeanValidation>

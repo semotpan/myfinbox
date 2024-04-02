@@ -124,12 +124,12 @@ class ExpenseCategoryControllerSpec extends Specification {
     }
 
     private postExpenseCategory(String request) {
-        restTemplate.postForEntity('/expenses/category', entityRequest(request), String.class)
+        restTemplate.postForEntity('/v1/expenses/category', entityRequest(request), String.class)
     }
 
     private putExpenseCategory(String request) {
         restTemplate.exchange(
-                "/expenses/category/${DataSamples.categoryId}",
+                "/v1/expenses/category/${DataSamples.categoryId}",
                 PUT,
                 entityRequest(request),
                 String.class
@@ -138,7 +138,7 @@ class ExpenseCategoryControllerSpec extends Specification {
 
     private deleteExpenseCategory() {
         restTemplate.exchange(
-                "/expenses/category/${DataSamples.categoryId}",
+                "/v1/expenses/category/${DataSamples.categoryId}",
                 DELETE,
                 entityRequest(null),
                 String.class

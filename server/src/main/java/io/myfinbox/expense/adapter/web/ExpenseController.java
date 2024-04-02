@@ -18,9 +18,9 @@ import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
-@RequestMapping(path = "/expenses")
+@RequestMapping(path = "/v1/expenses")
 @RequiredArgsConstructor
-final class ExpenseController implements ExpenseControllerApi {
+final class ExpenseController implements ExpensesApi {
 
     private final CreateExpenseUseCase createExpenseUseCase;
     private final UpdateExpenseUseCase updateExpenseUseCase;

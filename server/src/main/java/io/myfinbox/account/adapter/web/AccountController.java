@@ -16,9 +16,9 @@ import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
-@RequestMapping(path = "/accounts")
+@RequestMapping(path = "/v1/accounts")
 @RequiredArgsConstructor
-final class AccountController implements AccountControllerApi {
+final class AccountController implements AccountsApi {
 
     private final CreateAccountUseCase createAccountUseCase;
     private final ApiFailureHandler apiFailureHandler;

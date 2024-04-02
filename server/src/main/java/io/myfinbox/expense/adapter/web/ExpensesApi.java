@@ -19,7 +19,8 @@ import java.util.UUID;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface ExpenseControllerApi {
+public interface ExpensesApi {
+
     String TAG = "expenses";
 
     @Operation(summary = "Add a new expense in the MyFinBox", description = "Add a new expense in the MyFinBox",
