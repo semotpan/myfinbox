@@ -28,7 +28,7 @@ class DataSamples {
 
     static ACCOUNT_CREATED_EVENT = [
             accountId   : "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca",
-            emailAddress: ["emailAddress": "jonsnow@gmail.com"],
+            emailAddress: "jonsnow@gmail.com",
             firstName   : "Jon",
             lastName    : "Snow"
     ]

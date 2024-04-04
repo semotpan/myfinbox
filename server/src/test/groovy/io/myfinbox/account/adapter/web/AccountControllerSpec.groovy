@@ -67,7 +67,7 @@ class AccountControllerSpec extends Specification {
 
         and: 'account created event raised'
         assert events.ofType(AccountCreated.class).contains(
-                newSampleAccountEvent(accountIdentifier: ["id": idFromLocation(response.getHeaders().getLocation())])
+                newSampleAccountEvent(accountId: idFromLocation(response.getHeaders().getLocation()))
         )
     }
 

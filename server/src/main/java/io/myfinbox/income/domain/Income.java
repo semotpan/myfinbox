@@ -2,6 +2,7 @@ package io.myfinbox.income.domain;
 
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import io.myfinbox.income.IncomeCreated;
+import io.myfinbox.income.IncomeUpdated;
 import io.myfinbox.shared.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -85,6 +86,24 @@ public class Income extends AbstractAggregateRoot<Income> {
 
     public String getCurrencyCode() {
         return amount.getCurrency().getCurrencyCode();
+    }
+
+    public void update(IncomeBuilder builder) {
+        notNull(builder, "builder cannot be null.");
+        this.amount = greaterThanZero(builder.amount, "amount must be greater than 0.");
+        this.incomeSource = notNull(builder.incomeSource, "incomeSource cannot be null");
+        this.paymentType = builder.paymentType == null ? PaymentType.CARD : builder.paymentType;
+        this.incomeDate = builder.incomeDate == null ? LocalDate.now() : builder.incomeDate;
+        this.description = builder.description;
+
+        registerEvent(IncomeUpdated.builder()
+                .incomeId(this.id.id())
+                .accountId(this.account.id())
+                .amount(this.amount)
+                .incomeSourceId(this.incomeSource.getId().id())
+                .paymentType(this.paymentType)
+                .incomeDate(this.incomeDate)
+                .build());
     }
 
     @Embeddable

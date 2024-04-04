@@ -115,4 +115,8 @@ class DataSamples {
     static newValidIncomeCreatedEvent(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(INCOME_EVENT + map) as String, IncomeCreated.class)
     }
+
+    static newValidIncomeUpdatedEvent(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(INCOME_EVENT + map) as String, IncomeUpdated.class)
+    }
 }

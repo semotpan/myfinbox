@@ -79,16 +79,13 @@ public class Expense extends AbstractAggregateRoot<Expense> {
                 .build());
     }
 
-    public void update(MonetaryAmount amount,
-                       PaymentType paymentType,
-                       LocalDate expenseDate,
-                       String description,
-                       Category category) {
-        this.amount = greaterThanZero(amount, "amount must be greater than 0.");
-        this.category = notNull(category, "category cannot be null.");
-        this.paymentType = isNull(paymentType) ? PaymentType.CARD : paymentType;
-        this.expenseDate = isNull(expenseDate) ? LocalDate.now() : expenseDate;
-        this.description = description;
+    public void update(ExpenseBuilder builder) {
+        notNull(builder, "builder cannot be null.");
+        this.amount = greaterThanZero(builder.amount, "amount must be greater than 0.");
+        this.category = notNull(builder.category, "category cannot be null.");
+        this.paymentType = isNull(builder.paymentType) ? PaymentType.CARD : builder.paymentType;
+        this.expenseDate = isNull(builder.expenseDate) ? LocalDate.now() : builder.expenseDate;
+        this.description = builder.description;
 
         registerEvent(ExpenseUpdated.builder()
                 .expenseId(this.id.id())

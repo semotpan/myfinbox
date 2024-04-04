@@ -51,11 +51,13 @@ class UpdateExpenseService implements UpdateExpenseUseCase {
         }
 
         expense.get().update(
-                Money.of(command.amount(), command.currencyCode()),
-                PaymentType.fromValue(command.paymentType()),
-                command.expenseDate(),
-                command.description(),
-                possibleCategory.get()
+                Expense.builder()
+                        .account(new AccountIdentifier(command.accountId()))
+                        .amount(Money.of(command.amount(), command.currencyCode()))
+                        .expenseDate(command.expenseDate())
+                        .paymentType(PaymentType.fromValue(command.paymentType()))
+                        .description(command.description())
+                        .category(possibleCategory.get())
         );
 
         expenses.save(expense.get());
