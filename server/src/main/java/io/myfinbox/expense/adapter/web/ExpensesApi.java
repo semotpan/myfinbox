@@ -56,7 +56,7 @@ public interface ExpensesApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> update(@Parameter(description = "CategoryId to be updated", required = true) UUID expenseId,
+    ResponseEntity<?> update(@Parameter(description = "ExpenseId to be updated", required = true) UUID expenseId,
                              @RequestBody(description = "Expense Resource to be updated", required = true) ExpenseResource resource);
 
     @Operation(summary = "Delete an expense in the MyFinBox", description = "Delete an expense in the MyFinBox",

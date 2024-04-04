@@ -52,6 +52,10 @@ public final class IncomeSource {
         this.name = doesNotOverflow(name, NAME_MAX_LENGTH, "name overflow, max length allowed '%d'".formatted(NAME_MAX_LENGTH));
     }
 
+    public boolean matches(IncomeSourceIdentifier identifier) {
+        return this.id.equals(identifier);
+    }
+
     @Embeddable
     public record IncomeSourceIdentifier(UUID id) implements Serializable {
 

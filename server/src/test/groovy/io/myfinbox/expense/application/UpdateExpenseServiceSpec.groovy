@@ -1,9 +1,6 @@
 package io.myfinbox.expense.application
 
-import io.myfinbox.expense.domain.AccountIdentifier
-import io.myfinbox.expense.domain.Categories
-import io.myfinbox.expense.domain.Category
-import io.myfinbox.expense.domain.Expenses
+import io.myfinbox.expense.domain.*
 import io.myfinbox.shared.Failure
 import spock.lang.Specification
 import spock.lang.Tag
@@ -229,5 +226,8 @@ class UpdateExpenseServiceSpec extends Specification {
                 expenseDate: "2024-03-24",
                 description: "Other expenses",
         )
+
+        and: 'expense is updated in the repository'
+        1 * expenses.save(_ as Expense)
     }
 }

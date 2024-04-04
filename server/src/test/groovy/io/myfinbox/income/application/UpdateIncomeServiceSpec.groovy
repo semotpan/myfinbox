@@ -1,42 +1,39 @@
 package io.myfinbox.income.application
 
-import io.myfinbox.income.domain.AccountIdentifier
-import io.myfinbox.income.domain.Income
-import io.myfinbox.income.domain.IncomeSources
-import io.myfinbox.income.domain.Incomes
+import io.myfinbox.income.domain.*
 import io.myfinbox.shared.Failure
 import spock.lang.Specification
 import spock.lang.Tag
 
 import static io.myfinbox.income.DataSamples.*
 import static io.myfinbox.income.application.CreateIncomeService.INCOME_SOURCE_NOT_FOUND_MESSAGE
-import static io.myfinbox.income.application.CreateIncomeService.VALIDATION_FAILURE_MESSAGE
-import static io.myfinbox.income.domain.IncomeSource.IncomeSourceIdentifier
+import static io.myfinbox.income.application.UpdateIncomeService.INCOME_NOT_FOUND_MESSAGE
+import static io.myfinbox.income.application.UpdateIncomeService.VALIDATION_FAILURE_MESSAGE
 
 @Tag("unit")
-class CreateIncomeServiceSpec extends Specification {
+class UpdateIncomeServiceSpec extends Specification {
 
     IncomeSources incomeSources
     Incomes incomes
-    CreateIncomeService service
+    UpdateIncomeUseCase service
 
     def setup() {
         incomes = Mock()
         incomeSources = Mock()
-        service = new CreateIncomeService(incomeSources, incomes)
+        service = new UpdateIncomeService(incomeSources, incomes)
     }
 
-    def "should fail income creation when accountId is null"() {
+    def "should fail income updating when accountId is null"() {
         given: 'a new income command with null accountId'
         def command = newValidIncomeCommand(accountId: null)
 
-        when: 'attempting to create an income with a null accountId'
-        def either = service.create(command)
+        when: 'attempting to update an income with a null accountId'
+        def either = service.update(UUID.randomUUID(), command)
 
         then: 'a failure result is present'
         assert either.isLeft()
 
-        and: 'the failure message indicates validation failure for create income request'
+        and: 'the failure message indicates validation failure for update income request'
         assert either.getLeft() == Failure.ofValidation(VALIDATION_FAILURE_MESSAGE, [
                 Failure.FieldViolation.builder()
                         .field('accountId')
@@ -45,12 +42,12 @@ class CreateIncomeServiceSpec extends Specification {
         ])
     }
 
-    def "should fail income creation when incomeSourceId is null"() {
+    def "should fail income updating when incomeSourceId is null"() {
         given: 'a new income command with null incomeSourceId'
         def command = newValidIncomeCommand(incomeSourceId: null)
 
-        when: 'attempting to create an income with a null incomeSourceId'
-        def either = service.create(command)
+        when: 'attempting to update an income with a null incomeSourceId'
+        def either = service.update(UUID.randomUUID(), command)
 
         then: 'a failure result is present'
         assert either.isLeft()
@@ -64,12 +61,12 @@ class CreateIncomeServiceSpec extends Specification {
         ])
     }
 
-    def "should fail income creation when paymentType is invalid"() {
+    def "should fail income updating when paymentType is invalid"() {
         given: 'a new command with an invalid payment type'
         def command = newValidIncomeCommand(paymentType: paymentType)
 
-        when: 'attempting to create an income with an invalid paymentType'
-        def either = service.create(command)
+        when: 'attempting to update an income with an invalid paymentType'
+        def either = service.update(UUID.randomUUID(), command)
 
         then: 'a failure result is present'
         assert either.isLeft()
@@ -90,12 +87,12 @@ class CreateIncomeServiceSpec extends Specification {
         'Hola'      | "PaymentType must be 'Cash' or 'Card'."
     }
 
-    def "should fail income creation when amount is invalid"() {
+    def "should fail income updating when amount is invalid"() {
         given: 'a new command with an invalid amount'
         def command = newValidIncomeCommand(amount: value)
 
         when: 'attempting to create an income with an invalid amount'
-        def either = service.create(command)
+        def either = service.update(UUID.randomUUID(), command)
 
         then: 'a failure result is present'
         assert either.isLeft()
@@ -116,12 +113,12 @@ class CreateIncomeServiceSpec extends Specification {
         -25.56 | 'Amount must be a positive value.'
     }
 
-    def "should fail income creation when currencyCode is invalid"() {
+    def "should fail income updating when currencyCode is invalid"() {
         given: 'a new command with an invalid currencyCode'
         def command = newValidIncomeCommand(currencyCode: currencyCode)
 
-        when: 'attempting to create an income with an invalid currencyCode'
-        def either = service.create(command)
+        when: 'attempting to update an income with an invalid currencyCode'
+        def either = service.update(UUID.randomUUID(), command)
 
         then: 'a failure result is present'
         assert either.isLeft()
@@ -143,12 +140,12 @@ class CreateIncomeServiceSpec extends Specification {
         'MDLA'       | 'CurrencyCode is not valid.'
     }
 
-    def "should fail income creation when incomeDate is null"() {
+    def "should fail income updating when incomeDate is null"() {
         given: 'a new command with a null incomeDate'
         def command = newValidIncomeCommand(incomeDate: null)
 
         when: 'attempting to create an income with a null incomeDate'
-        def either = service.create(command)
+        def either = service.update(UUID.randomUUID(), command)
 
         then: 'a failure result is present'
         assert either.isLeft()
@@ -162,12 +159,39 @@ class CreateIncomeServiceSpec extends Specification {
         ])
     }
 
-    def "should fail income creation when income source is not found"() {
-        setup: 'repository mock behavior'
-        1 * incomeSources.findByIdAndAccount(_ as IncomeSourceIdentifier, _ as AccountIdentifier) >> Optional.empty()
+    def "should fail income updating when income id null with income not found"() {
+        when: 'attempting to update an income with a null income id'
+        def either = service.update(null, newValidIncomeCommand())
 
-        when: 'attempting to create an income with a non-existing income source'
-        def either = service.create(newValidIncomeCommand())
+        then: 'a failure result is present'
+        assert either.isLeft()
+
+        and: 'not found failure for the provided income id is available'
+        assert either.getLeft() == Failure.ofNotFound(INCOME_NOT_FOUND_MESSAGE)
+    }
+
+
+    def "should fail income updating when income is not found"() {
+        setup: 'repository mock behavior'
+        1 * incomes.findByIdAndAccount(_ as Income.IncomeIdentifier, _ as AccountIdentifier) >> Optional.empty()
+
+        when: 'attempting to update an income with non-existing income'
+        def either = service.update(UUID.randomUUID(), newValidIncomeCommand())
+
+        then: 'a failure result is present'
+        assert either.isLeft()
+
+        and: 'not found failure for the provided income is available'
+        assert either.getLeft() == Failure.ofNotFound(INCOME_NOT_FOUND_MESSAGE)
+    }
+
+    def "should fail income updating when income source is not found"() {
+        setup: 'repository mock behavior'
+        1 * incomes.findByIdAndAccount(_ as Income.IncomeIdentifier, _ as AccountIdentifier) >> Optional.of(newSampleIncome())
+        1 * incomeSources.findByIdAndAccount(_ as IncomeSource.IncomeSourceIdentifier, _ as AccountIdentifier) >> Optional.empty()
+
+        when: 'attempting to update an income with a non-existing income source'
+        def either = service.update(UUID.randomUUID(), newValidIncomeCommand(incomeSourceId: UUID.randomUUID()))
 
         then: 'a failure result is present'
         assert either.isLeft()
@@ -176,23 +200,36 @@ class CreateIncomeServiceSpec extends Specification {
         assert either.getLeft() == Failure.ofNotFound(INCOME_SOURCE_NOT_FOUND_MESSAGE)
     }
 
-    def "should create an income"() {
+    def "should update an income"() {
         setup: 'repository mock behavior and interaction'
-        1 * incomeSources.findByIdAndAccount(_ as IncomeSourceIdentifier, _ as AccountIdentifier) >> Optional.of(newSampleIncomeSource())
+        1 * incomes.findByIdAndAccount(_ as Income.IncomeIdentifier, _ as AccountIdentifier) >> Optional.of(newSampleIncome())
+        1 * incomeSources.findByIdAndAccount(_ as IncomeSource.IncomeSourceIdentifier, _ as AccountIdentifier) >> Optional.of(newSampleIncomeSource())
 
-        when: 'creating a new income'
-        def either = service.create(newValidIncomeCommand())
+        when: 'updating a new income'
+        def either = service.update(UUID.randomUUID(), newValidIncomeCommand(
+                incomeSourceId: UUID.randomUUID(),
+                paymentType: "Card",
+                amount: 50.0,
+                currencyCode: "USD",
+                incomeDate: "2024-03-24",
+                description: "Other expenses"
+        ))
 
         then: 'income value is present'
         assert either.isRight()
 
         and: 'income is built as expected'
         assert either.get() == newSampleIncome([
-                id               : [id: either.get().getId().toString()],
-                creationTimestamp: either.get().getCreationTimestamp().toString(),
+                paymentType: "CARD",
+                amount     : [
+                        amount  : 50.0,
+                        currency: "USD"
+                ],
+                incomeDate : "2024-03-24",
+                description: "Other expenses",
         ])
 
-        and: 'income is saved in the repository'
+        and: 'income is updated in the repository'
         1 * incomes.save(_ as Income)
     }
 }

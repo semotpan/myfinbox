@@ -3,7 +3,9 @@ package io.myfinbox.income.adapter.web
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
+import io.myfinbox.income.DataSamples
 import io.myfinbox.income.IncomeCreated
+import io.myfinbox.income.IncomeUpdated
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,12 +23,11 @@ import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
 
-import static io.myfinbox.income.DataSamples.newValidIncomeCreatedEvent
-import static io.myfinbox.income.DataSamples.newValidIncomeResource
+import static io.myfinbox.income.DataSamples.*
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import static org.springframework.http.HttpStatus.CREATED
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
+import static org.springframework.http.HttpMethod.PUT
+import static org.springframework.http.HttpStatus.*
 import static org.springframework.http.MediaType.APPLICATION_JSON
 
 @Tag("integration")
@@ -85,8 +86,70 @@ class IncomeControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedCreationFailure(), response.getBody(), LENIENT)
     }
 
+
+    @Sql(['/income/web/incomesource-create.sql', '/income/web/income-create.sql'])
+    def "should update an income"() {
+        given: 'user wants to update an existing income'
+        var request = newValidIncomeResource(
+                incomeSourceId: incomeSourceId2,
+                paymentType: "Card",
+                amount: 50,
+                currencyCode: "MDL",
+                incomeDate: '2024-03-19',
+                description: 'Other sources'
+        )
+
+        when: 'income is updated'
+        var response = putIncome(request)
+
+        then: 'response status is ok'
+        assert response.getStatusCode() == OK
+
+        and: 'body contains updated resource'
+        JSONAssert.assertEquals(expectedUpdatedResource(), response.getBody(), LENIENT)
+
+        and: 'income updated event raised'
+        assert events.ofType(IncomeUpdated.class).contains(
+                newValidIncomeUpdatedEvent(
+                        incomeSourceId: incomeSourceId2,
+                        paymentType: "CARD",
+                        amount: [
+                                amount  : 50,
+                                currency: "MDL"
+                        ],
+                        incomeDate: '2024-03-19'
+                )
+        )
+    }
+
+    @Sql(['/income/web/incomesource-create.sql', '/income/web/income-create.sql'])
+    def "should fail updating when provided income source not found"() {
+        given: 'user wants to update an existing income'
+        var request = newValidIncomeResource(
+                incomeSourceId: UUID.randomUUID()
+        )
+
+        when: 'income fails to update'
+        var response = putIncome(request)
+
+        then: 'response has status code not found'
+        assert response.getStatusCode() == NOT_FOUND
+
+        and: 'response body contains not found failure response'
+        JSONAssert.assertEquals(expectedUpdateFailure(), response.getBody(), LENIENT)
+    }
+
     def postIncome(String req) {
         restTemplate.postForEntity('/v1/incomes', entityRequest(req), String.class)
+    }
+
+    def putIncome(String req) {
+        restTemplate.exchange(
+                "/v1/incomes/${DataSamples.incomeId}",
+                PUT,
+                entityRequest(req),
+                String.class
+        )
     }
 
     def entityRequest(String req) {
@@ -107,9 +170,28 @@ class IncomeControllerSpec extends Specification {
         )
     }
 
+    def expectedUpdatedResource() {
+        newValidIncomeResource(
+                incomeSourceId: incomeSourceId2,
+                paymentType: "Card",
+                amount: 50,
+                currencyCode: "MDL",
+                incomeDate: '2024-03-19',
+                description: 'Other sources'
+        )
+    }
+
     def expectedCreationFailure() {
         def filePath = 'income/web/income-creation-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedUpdateFailure() {
+        JsonOutput.toJson([
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Income source not found for the provided account."
+        ])
     }
 }
