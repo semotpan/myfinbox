@@ -57,6 +57,21 @@ public interface IncomesApi {
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     ResponseEntity<?> update(@Parameter(description = "IncomeId to be updated", required = true) UUID incomeId,
-                             @RequestBody(description = "Income Resource to be created", required = true) IncomeResource resource);
+                             @RequestBody(description = "Income Resource to be updated", required = true) IncomeResource resource);
+
+    @Operation(summary = "Delete an income in the MyFinBox", description = "Delete an income in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successful Operation",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Income to be deleted was not found",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> delete(@Parameter(description = "IncomeId to be deleted", required = true) UUID incomeId);
 
 }

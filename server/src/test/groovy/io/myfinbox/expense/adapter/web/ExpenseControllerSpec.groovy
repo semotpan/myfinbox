@@ -56,7 +56,7 @@ class ExpenseControllerSpec extends Specification {
         var request = newValidExpenseResource()
 
         when: 'expense is created'
-        var response = postNewExpense(request)
+        var response = postExpense(request)
 
         then: 'response status is created'
         assert response.getStatusCode() == CREATED
@@ -78,7 +78,7 @@ class ExpenseControllerSpec extends Specification {
         var request = '{}'
 
         when: 'expense fails to create'
-        var response = postNewExpense(request)
+        var response = postExpense(request)
 
         then: 'response has status code unprocessable entity'
         assert response.getStatusCode() == UNPROCESSABLE_ENTITY
@@ -100,7 +100,7 @@ class ExpenseControllerSpec extends Specification {
         )
 
         when: 'expense is updated'
-        var response = putAnExpense(request)
+        var response = putExpense(request)
 
         then: 'response status is ok'
         assert response.getStatusCode() == OK
@@ -130,7 +130,7 @@ class ExpenseControllerSpec extends Specification {
         )
 
         when: 'expense fails to update'
-        var response = postNewExpense(request)
+        var response = postExpense(request)
 
         then: 'response has status code not found'
         assert response.getStatusCode() == NOT_FOUND
@@ -142,9 +142,9 @@ class ExpenseControllerSpec extends Specification {
     @Sql(['/expense/web/expensecategory-create.sql', '/expense/web/expense-create.sql'])
     def "should delete an expense"() {
         when: 'expense is deleted'
-        var response = deleteAnExpense()
+        var response = deleteExpense()
 
-        then: 'response status is created'
+        then: 'response status is no content'
         assert response.getStatusCode() == NO_CONTENT
 
         and: 'expense deleted event raised'
@@ -153,7 +153,7 @@ class ExpenseControllerSpec extends Specification {
 
     def "should fail delete when expense not found"() {
         when: 'expense fails to delete'
-        var response = deleteAnExpense()
+        var response = deleteExpense()
 
         then: 'response has status code not found'
         assert response.getStatusCode() == NOT_FOUND
@@ -162,11 +162,11 @@ class ExpenseControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedDeleteFailure(), response.getBody(), LENIENT)
     }
 
-    def postNewExpense(String req) {
+    def postExpense(String req) {
         restTemplate.postForEntity('/v1/expenses', entityRequest(req), String.class)
     }
 
-    def putAnExpense(String req) {
+    def putExpense(String req) {
         restTemplate.exchange(
                 "/v1/expenses/${expenseId}",
                 PUT,
@@ -175,7 +175,7 @@ class ExpenseControllerSpec extends Specification {
         )
     }
 
-    def deleteAnExpense() {
+    def deleteExpense() {
         restTemplate.exchange(
                 "/v1/expenses/${expenseId}",
                 DELETE,
