@@ -2,6 +2,7 @@ package io.myfinbox.income.domain;
 
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import io.myfinbox.income.IncomeCreated;
+import io.myfinbox.income.IncomeDeleted;
 import io.myfinbox.income.IncomeUpdated;
 import io.myfinbox.shared.PaymentType;
 import jakarta.persistence.*;
@@ -97,6 +98,17 @@ public class Income extends AbstractAggregateRoot<Income> {
         this.description = builder.description;
 
         registerEvent(IncomeUpdated.builder()
+                .incomeId(this.id.id())
+                .accountId(this.account.id())
+                .amount(this.amount)
+                .incomeSourceId(this.incomeSource.getId().id())
+                .paymentType(this.paymentType)
+                .incomeDate(this.incomeDate)
+                .build());
+    }
+
+    public void delete() {
+        registerEvent(IncomeDeleted.builder()
                 .incomeId(this.id.id())
                 .accountId(this.account.id())
                 .amount(this.amount)

@@ -1,6 +1,7 @@
 package io.myfinbox.income.adapter.web;
 
 import io.myfinbox.income.application.CreateIncomeUseCase;
+import io.myfinbox.income.application.DeleteIncomeUseCase;
 import io.myfinbox.income.application.IncomeCommand;
 import io.myfinbox.income.application.UpdateIncomeUseCase;
 import io.myfinbox.income.domain.Income;
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.created;
-import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.*;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
@@ -24,6 +24,7 @@ final class IncomeController implements IncomesApi {
 
     private final CreateIncomeUseCase createIncomeUseCase;
     private final UpdateIncomeUseCase updateIncomeUseCase;
+    private final DeleteIncomeUseCase deleteIncomeUseCase;
     private final ApiFailureHandler apiFailureHandler;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -38,6 +39,12 @@ final class IncomeController implements IncomesApi {
     public ResponseEntity<?> update(@PathVariable UUID incomeId, @RequestBody IncomeResource resource) {
         return updateIncomeUseCase.update(incomeId, toCommand(resource))
                 .fold(apiFailureHandler::handle, income -> ok().body(toResource(income)));
+    }
+
+    @DeleteMapping(path = "/{incomeId}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> delete(@PathVariable UUID incomeId) {
+        return deleteIncomeUseCase.delete(incomeId)
+                .fold(apiFailureHandler::handle, ok -> noContent().build());
     }
 
     private IncomeResource toResource(Income income) {
