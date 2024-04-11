@@ -180,3 +180,39 @@ components:
           type: string
           example: Base salary
           description: Additional description attached to the income.
+
+    CreatePlanResource:
+      type: object
+      properties:
+        planId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the spending plan (read-only).
+        accountId:
+          type: string
+          format: uuid
+          example: 3b257779-a5db-4e87-9365-72c6f8d4977d
+          description: The ID of the account that submitted the spending plan.
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the spending plan was created (read-only).
+        name:
+          type: string
+          example: My monthly plan
+          description: The name of the spending plan.
+        amount:
+          type: number
+          example: 1000
+          description: The amount of the spending plan.
+        currencyCode:
+          type: string
+          example: MDL
+          pattern: '^[A-Z]{3}$'
+          description: The ISO 4217 currency code in uppercase (e.g., USD, EUR).
+        description:
+          type: string
+          example: My base plan for tracking all spending
+          description: Additional description attached to the spending plan.
