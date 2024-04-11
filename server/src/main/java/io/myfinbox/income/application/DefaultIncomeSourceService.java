@@ -134,8 +134,9 @@ class DefaultIncomeSourceService implements IncomeSourceService {
         }
 
         private Validation<FieldViolation, UUID> validateAccountId(UUID accountId) {
-            if (nonNull(accountId))
+            if (nonNull(accountId)) {
                 return Valid(accountId);
+            }
 
             return Invalid(FieldViolation.builder()
                     .field(FIELD_ACCOUNT_ID)
@@ -144,8 +145,9 @@ class DefaultIncomeSourceService implements IncomeSourceService {
         }
 
         private Validation<FieldViolation, String> validateName(String name) {
-            if (!isBlank(name) && name.length() <= IncomeSource.NAME_MAX_LENGTH)
+            if (!isBlank(name) && name.length() <= IncomeSource.NAME_MAX_LENGTH) {
                 return Valid(name);
+            }
 
             var message = format("Name length cannot exceed {0} characters.", IncomeSource.NAME_MAX_LENGTH);
             if (isBlank(name))
