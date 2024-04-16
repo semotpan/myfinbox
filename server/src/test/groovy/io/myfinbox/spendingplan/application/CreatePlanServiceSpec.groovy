@@ -72,7 +72,6 @@ class CreatePlanServiceSpec extends Specification {
 
     }
 
-
     def "should fail plan creation when amount is invalid"() {
         given: 'a new command with an invalid amount'
         def command = newSampleCreatePlanCommand(amount: value)

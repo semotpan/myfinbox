@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.net.URI;
 import java.util.UUID;
 
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -56,7 +57,7 @@ public interface ExpensesApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> update(@Parameter(description = "ExpenseId to be updated", required = true) UUID expenseId,
+    ResponseEntity<?> update(@Parameter(in = PATH, description = "ExpenseId to be updated", required = true) UUID expenseId,
                              @RequestBody(description = "Expense Resource to be updated", required = true) ExpenseResource resource);
 
     @Operation(summary = "Delete an expense in the MyFinBox", description = "Delete an expense in the MyFinBox",
@@ -72,6 +73,6 @@ public interface ExpensesApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> delete(@Parameter(description = "ExpenseId to be deleted", required = true) UUID expenseId);
+    ResponseEntity<?> delete(@Parameter(in = PATH, description = "ExpenseId to be deleted", required = true) UUID expenseId);
 
 }

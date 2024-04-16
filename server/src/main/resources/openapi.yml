@@ -11,7 +11,7 @@ tags:
     description: Operations related to incomes and income sources
   - name: incomes
     description: Operations related to incomes and income sources
-  - name: spending-plans
+  - name: plans
     description: Operations related to spending plans
 
 servers:
@@ -216,3 +216,40 @@ components:
           type: string
           example: My base plan for tracking all spending
           description: Additional description attached to the spending plan.
+
+    CreateJarResource:
+      type: object
+      properties:
+        jarId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the jar (read-only).
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the jar was created (read-only).
+        amountToReach:
+          type: number
+          example: 550
+          readOnly: true
+          description: The calculated amount to reach from jar percentage and spending plan amount.
+        currencyCode:
+          type: string
+          example: MDL
+          readOnly: true
+          pattern: '^[A-Z]{3}$'
+          description: The ISO 4217 currency code in uppercase (e.g., USD, EUR), taken from plan.
+        name:
+          type: string
+          example: Necessities
+          description: The name of the jar.
+        percentage:
+          type: integer
+          example: 55
+          description: The jar percentage a value, accepted [1-100].
+        description:
+          type: string
+          example: "Necessities spending: Rent, Food, Bills etc."
+          description: Additional description attached to the jar.

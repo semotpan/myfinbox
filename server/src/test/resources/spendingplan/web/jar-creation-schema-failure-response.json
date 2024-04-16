@@ -1,0 +1,16 @@
+{
+  "status": 422,
+  "errorCode": "UNPROCESSABLE_ENTITY",
+  "message": "Failed to validate the request to create a spending jar.",
+  "errors": [
+    {
+      "field": "name",
+      "message": "Name cannot be empty."
+    },
+    {
+      "field": "percentage",
+      "message": "Percentage must be between 1 and 100.",
+      "rejectedValue": 101
+    }
+  ]
+}

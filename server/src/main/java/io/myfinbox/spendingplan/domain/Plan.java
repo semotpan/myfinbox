@@ -10,9 +10,12 @@ import javax.money.MonetaryAmount;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.*;
+import static jakarta.persistence.CascadeType.ALL;
 import static java.util.Objects.requireNonNull;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -43,6 +46,9 @@ public class Plan extends AbstractAggregateRoot<Plan> {
     private String name;
     private String description;
 
+    @OneToMany(mappedBy = "plan", cascade = ALL, orphanRemoval = true)
+    private final List<Jar> jars = new ArrayList<>();
+
     @Builder
     public Plan(AccountIdentifier account,
                 MonetaryAmount amount,
@@ -56,12 +62,12 @@ public class Plan extends AbstractAggregateRoot<Plan> {
         this.description = description;
     }
 
-    public void setName(String name) {
+    private void setName(String name) {
         notBlank(name, "name cannot be blank");
         this.name = doesNotOverflow(name, MAX_NAME_LENGTH, "name overflow, max length allowed '%d'".formatted(MAX_NAME_LENGTH));
     }
 
-    public void setAmount(MonetaryAmount amount) {
+    private void setAmount(MonetaryAmount amount) {
         this.amount = greaterThanZero(amount, "amount must be greater than 0.");
     }
 
@@ -71,6 +77,14 @@ public class Plan extends AbstractAggregateRoot<Plan> {
 
     public String getCurrencyCode() {
         return amount.getCurrency().getCurrencyCode();
+    }
+
+    public int totalJarPercentage() {
+        return jars
+                .stream()
+                .map(Jar::getPercentage)
+                .mapToInt(Jar.Percentage::value)
+                .sum();
     }
 
     @Embeddable

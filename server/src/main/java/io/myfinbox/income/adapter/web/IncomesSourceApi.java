@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.net.URI;
 import java.util.UUID;
 
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -60,7 +61,7 @@ public interface IncomesSourceApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> update(@Parameter(description = "Income Source ID to be updated", required = true) UUID incomeSourceId,
+    ResponseEntity<?> update(@Parameter(in = PATH, description = "Income Source ID to be updated", required = true) UUID incomeSourceId,
                              @RequestBody(description = "Income Source Resource to be updated", required = true) IncomeSourceResource resource);
 
     @Operation(summary = "Delete an income source in the MyFinBox",
@@ -79,5 +80,5 @@ public interface IncomesSourceApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> delete(@Parameter(description = "IncomeSourceID to be deleted", required = true) UUID incomeSourceId);
+    ResponseEntity<?> delete(@Parameter(in = PATH, description = "IncomeSourceID to be deleted", required = true) UUID incomeSourceId);
 }

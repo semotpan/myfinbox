@@ -14,11 +14,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.modulith.test.ApplicationModuleTest
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
 
-import static io.myfinbox.spendingplan.DataSamples.newSampleCreatePlanResource
+import static io.myfinbox.spendingplan.DataSamples.*
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpStatus.CREATED
@@ -29,7 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = TestServerApplication)
 @ApplicationModuleTest
 @TestPropertySource(locations = "/application-test.properties")
-class PlanControllerSpec extends Specification {
+class JarControllerSpec extends Specification {
 
     @Autowired
     JdbcTemplate jdbcTemplate
@@ -41,17 +42,18 @@ class PlanControllerSpec extends Specification {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spendingjars', 'spendingplans')
     }
 
-    def "should create a new spending plan"() {
-        given: 'user wants to create a spending plan'
-        var request = newSampleCreatePlanResource()
+    @Sql('/spendingplan/web/plan-create.sql')
+    def "should create a new jar for an existing spending plan"() {
+        given: 'user wants to create a jar'
+        var request = newSampleCreateJarResource()
 
-        when: 'plan is created'
-        var response = postPlan(request)
+        when: 'jar is created'
+        var response = postJar(request)
 
         then: 'response status is created'
         assert response.getStatusCode() == CREATED
 
-        and: 'location header contains the created spending plan URL location'
+        and: 'location header contains the created jar URL location'
         assert response.getHeaders().getLocation() != null
 
         and: 'body contains created resource'
@@ -59,21 +61,40 @@ class PlanControllerSpec extends Specification {
     }
 
     def "should fail creation when request has validation failures"() {
-        given: 'user wants to create a new spending plan'
-        var request = '{}'
+        given: 'user wants to create a jar'
+        var request = JsonOutput.toJson([
+                percentage: 101
+        ])
 
-        when: 'expense fails to create'
-        var response = postPlan(request)
+        when: 'jar fails to create'
+        var response = postJar(request)
 
         then: 'response has status code unprocessable entity'
         assert response.getStatusCode() == UNPROCESSABLE_ENTITY
 
         and: 'response body contains validation failure response'
-        JSONAssert.assertEquals(expectedCreationFailure(), response.getBody(), LENIENT)
+        JSONAssert.assertEquals(expectedCreationSchemaValidationFailure(), response.getBody(), LENIENT)
     }
 
-    def postPlan(String req) {
-        restTemplate.postForEntity('/v1/plans', entityRequest(req), String.class)
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
+    def "should fail creation when request resource jar percentage is greater than allowed"() {
+        given: 'user wants to create a jar'
+        var request = newSampleCreateJarResource(
+                name: 'Finances'
+        )
+
+        when: 'jar fails to create'
+        var response = postJar(request)
+
+        then: 'response has status code unprocessable entity'
+        assert response.getStatusCode() == UNPROCESSABLE_ENTITY
+
+        and: 'response body contains validation failure response'
+        JSONAssert.assertEquals(expectedCreationPercentageValidationFailure(), response.getBody(), LENIENT)
+    }
+
+    def postJar(String req) {
+        restTemplate.postForEntity("/v1/plans/${planId}/jars", entityRequest(req), String.class)
     }
 
     def entityRequest(String req) {
@@ -89,13 +110,21 @@ class PlanControllerSpec extends Specification {
     }
 
     def expectedCreatedResource(ResponseEntity response) {
-        newSampleCreatePlanResource(
-                planId: idFromLocation(response.getHeaders().getLocation())
+        newSampleCreateJarResource(
+                jarId: idFromLocation(response.getHeaders().getLocation()),
+                amountToReach: 550,
+                currencyCode: currency
         )
     }
 
-    def expectedCreationFailure() {
-        def filePath = 'spendingplan/web/plan-creation-failure-response.json'
+    def expectedCreationSchemaValidationFailure() {
+        def filePath = 'spendingplan/web/jar-creation-schema-failure-response.json'
+        def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
+        JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedCreationPercentageValidationFailure() {
+        def filePath = 'spendingplan/web/jar-creation-invalid-perc-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
     }

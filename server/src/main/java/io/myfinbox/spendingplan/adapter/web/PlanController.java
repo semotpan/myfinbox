@@ -17,7 +17,7 @@ import static org.springframework.http.ResponseEntity.created;
 import static org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentRequest;
 
 @RestController
-@RequestMapping(path = "/v1/spending-plans")
+@RequestMapping(path = "/v1/plans")
 @RequiredArgsConstructor
 final class PlanController implements PlansApi {
 
