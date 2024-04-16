@@ -1,0 +1,12 @@
+{
+  "status": 422,
+  "errorCode": "UNPROCESSABLE_ENTITY",
+  "message": "Failed to validate the request to create a spending jar.",
+  "errors": [
+    {
+      "field": "percentage",
+      "message": "Maximum available percentage '45'.",
+      "rejectedValue": 55
+    }
+  ]
+}
