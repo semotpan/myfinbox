@@ -16,8 +16,6 @@ public enum DefaultCategories {
     CLOTHING("Clothing"),
     FUN("Fun"),
     PERSONAL("Personal"),
-    LOAN("Loan"),
-    BUSINESS("Business"),
     OTHER("Other");
 
     public final String text;

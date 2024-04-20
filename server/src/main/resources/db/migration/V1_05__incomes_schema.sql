@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS incomes
     income_date        DATE           NOT NULL,
     description        TEXT,
     income_source_id   UUID           NOT NULL,
-    FOREIGN KEY (income_source_id) REFERENCES incomesource (id)
+    FOREIGN KEY (income_source_id) REFERENCES income_source (id)
 );

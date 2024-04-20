@@ -13,7 +13,7 @@ public enum PaymentType {
 
     public static boolean containsValue(String value) {
         for (var b : values()) {
-            if (b.value.equals(value))
+            if (b.value.equalsIgnoreCase(value))
                 return true;
         }
 
@@ -22,7 +22,7 @@ public enum PaymentType {
 
     public static PaymentType fromValue(String value) {
         for (var b : values()) {
-            if (b.value.equals(value))
+            if (b.value.equalsIgnoreCase(value))
                 return b;
         }
 

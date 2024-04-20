@@ -39,7 +39,7 @@ class JarControllerSpec extends Specification {
     TestRestTemplate restTemplate
 
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spendingjars', 'spendingplans')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spending_jars', 'spending_plans')
     }
 
     @Sql('/spendingplan/web/plan-create.sql')

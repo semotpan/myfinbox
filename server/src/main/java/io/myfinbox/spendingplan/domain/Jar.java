@@ -9,6 +9,7 @@ import org.hibernate.annotations.CompositeType;
 import javax.money.MonetaryAmount;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import static io.myfinbox.shared.Guards.*;
 import static lombok.AccessLevel.PRIVATE;
 
 @Entity
-@Table(name = "spendingjars")
+@Table(name = "spending_jars")
 @Getter
 @ToString
 @EqualsAndHashCode
@@ -75,7 +76,8 @@ public class Jar {
 
     @JsonIgnore
     public BigDecimal getAmountToReachAsNumber() {
-        return amountToReach.getNumber().numberValue(BigDecimal.class);
+        return amountToReach.getNumber().numberValue(BigDecimal.class)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     @JsonIgnore

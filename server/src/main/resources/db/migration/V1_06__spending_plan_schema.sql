@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS spendingplans
+CREATE TABLE IF NOT EXISTS spending_plans
 (
     id                 UUID PRIMARY KEY        DEFAULT gen_random_uuid(),
     creation_timestamp TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS spendingplans
 )
 ;
 
-CREATE UNIQUE INDEX unique_spending_plan_name_account_id_idx ON spendingplans (account_id, name);
+CREATE UNIQUE INDEX unique_spending_plan_name_account_id_idx ON spending_plans (account_id, name);

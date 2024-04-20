@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS expenses
     expense_date       DATE           NOT NULL,
     description        TEXT,
     category_id        UUID           NOT NULL,
-    FOREIGN KEY (category_id) REFERENCES expensecategory (id)
+    FOREIGN KEY (category_id) REFERENCES expense_category (id)
 );

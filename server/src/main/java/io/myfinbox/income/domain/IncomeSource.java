@@ -17,7 +17,7 @@ import static lombok.AccessLevel.PRIVATE;
  * Defines the domain model representation of income source
  */
 @Entity
-@Table(name = "incomesource")
+@Table(name = "income_source")
 @Getter
 @ToString
 @EqualsAndHashCode
