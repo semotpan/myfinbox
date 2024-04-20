@@ -39,7 +39,7 @@ class ExpenseCategoryControllerSpec extends Specification {
     TestRestTemplate restTemplate
 
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'expenses', 'expensecategory')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'expenses', 'expense_category')
     }
 
     def "Should create a new category expense"() {

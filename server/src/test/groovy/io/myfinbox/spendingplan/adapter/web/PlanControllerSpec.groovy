@@ -38,7 +38,7 @@ class PlanControllerSpec extends Specification {
     TestRestTemplate restTemplate
 
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spendingjars', 'spendingplans')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spending_jars', 'spending_plans')
     }
 
     def "should create a new spending plan"() {

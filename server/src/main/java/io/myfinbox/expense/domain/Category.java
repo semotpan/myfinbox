@@ -17,7 +17,7 @@ import static lombok.AccessLevel.PRIVATE;
  * Defines the domain model representation of expense category
  */
 @Entity
-@Table(name = "expensecategory")
+@Table(name = "expense_category")
 @Getter
 @ToString
 @EqualsAndHashCode

@@ -47,7 +47,7 @@ class IncomeControllerSpec extends Specification {
     TestRestTemplate restTemplate
 
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'incomes', 'incomesource')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'incomes', 'income_source')
     }
 
     @Sql('/income/web/incomesource-create.sql')

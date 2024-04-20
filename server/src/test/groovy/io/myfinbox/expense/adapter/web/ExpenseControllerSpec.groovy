@@ -47,7 +47,7 @@ class ExpenseControllerSpec extends Specification {
     TestRestTemplate restTemplate
 
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'expenses', 'expensecategory')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'expenses', 'expense_category')
     }
 
     @Sql('/expense/web/expensecategory-create.sql')

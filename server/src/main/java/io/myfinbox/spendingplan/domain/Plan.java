@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 import static lombok.AccessLevel.PRIVATE;
 
 @Entity
-@Table(name = "spendingplans")
+@Table(name = "spending_plans")
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)

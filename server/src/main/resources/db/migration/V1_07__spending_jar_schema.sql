@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS spendingjars
+CREATE TABLE IF NOT EXISTS spending_jars
 (
     id                 UUID PRIMARY KEY        DEFAULT gen_random_uuid(),
     creation_timestamp TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -8,10 +8,10 @@ CREATE TABLE IF NOT EXISTS spendingjars
     percentage         INTEGER        NOT NULL,
     description        TEXT,
     plan_id            UUID           NOT NULL,
-    FOREIGN KEY (plan_id) REFERENCES spendingplans (id)
+    FOREIGN KEY (plan_id) REFERENCES spending_plans (id)
 )
 ;
 
-CREATE UNIQUE INDEX unique_spending_jar_name_plan_id_idx ON spendingjars (name, plan_id);
+CREATE UNIQUE INDEX unique_spending_jar_name_plan_id_idx ON spending_jars (name, plan_id);
 
-CREATE INDEX search_spending_plan_id_idx ON spendingjars (plan_id);
+CREATE INDEX search_spending_plan_id_idx ON spending_jars (plan_id);
