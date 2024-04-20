@@ -3,6 +3,8 @@ package io.myfinbox.spendingplan.adapter.web
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
+import io.myfinbox.spendingplan.domain.JarExpenseCategories
+import io.myfinbox.spendingplan.domain.JarIdentifier
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,10 +22,11 @@ import spock.lang.Specification
 import spock.lang.Tag
 
 import static io.myfinbox.spendingplan.DataSamples.*
+import static io.myfinbox.spendingplan.domain.JarExpenseCategory.CategoryIdentifier
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import static org.springframework.http.HttpStatus.CREATED
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
+import static org.springframework.http.HttpMethod.PUT
+import static org.springframework.http.HttpStatus.*
 import static org.springframework.http.MediaType.APPLICATION_JSON
 
 @Tag("integration")
@@ -38,8 +41,11 @@ class JarControllerSpec extends Specification {
     @Autowired
     TestRestTemplate restTemplate
 
+    @Autowired
+    JarExpenseCategories jarExpenseCategories
+
     def cleanup() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spending_jars', 'spending_plans')
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spending_jar_expense_category', 'spending_jars', 'spending_plans')
     }
 
     @Sql('/spendingplan/web/plan-create.sql')
@@ -93,8 +99,54 @@ class JarControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedCreationPercentageValidationFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql', '/spendingplan/web/jar_expense_category-create.sql'])
+    def "should modify provided category list"() {
+        given: 'one plan, one jar with 2 existing categories, user wants to remove existing and add one new'
+        def category3Id = UUID.randomUUID()
+        var request = newSampleJarCategoriesResource(categories: [
+                newSampleJarCategoryToAddAsMap(categoryId: jarCategoryId, toAdd: false),
+                newSampleJarCategoryToAddAsMap(categoryId: jarCategoryId2, toAdd: false),
+                newSampleJarCategoryToAddAsMap(categoryId: category3Id)
+        ])
+
+        when: 'modify categories'
+        var response = putJarCategories(request)
+
+        then: 'response has status code ok'
+        assert response.getStatusCode() == OK
+
+        and: 'only one category was recorded into the database'
+        assert jarExpenseCategories.findByJarId(new JarIdentifier(UUID.fromString(jarId))).size() == 1
+        assert jarExpenseCategories.existsByJarIdAndCategoryId(new JarIdentifier(UUID.fromString(jarId)), new CategoryIdentifier(category3Id))
+    }
+
+    def "should fail to modify when plan jar not found"() {
+        given: 'user wants to modify categories for provided plan jar'
+        var request = newSampleJarCategoriesResource(
+                categories: [newSampleJarCategoryToAddAsMap(categoryId: jarCategoryId)]
+        )
+
+        when: 'modification fails'
+        var response = putJarCategories(request)
+
+        then: 'response has status code not found'
+        assert response.getStatusCode() == NOT_FOUND
+
+        and: 'response body contains validation failure response'
+        JSONAssert.assertEquals(expectedCategoriesModificationFailure(), response.getBody(), LENIENT)
+    }
+
     def postJar(String req) {
         restTemplate.postForEntity("/v1/plans/${planId}/jars", entityRequest(req), String.class)
+    }
+
+    def putJarCategories(String req) {
+        restTemplate.exchange(
+                "/v1/plans/${planId}/jars/${jarId}/expense-categories",
+                PUT,
+                entityRequest(req),
+                String.class
+        )
     }
 
     def entityRequest(String req) {
@@ -127,5 +179,13 @@ class JarControllerSpec extends Specification {
         def filePath = 'spendingplan/web/jar-creation-invalid-perc-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedCategoriesModificationFailure() {
+        JsonOutput.toJson([
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Spending plan jar was not found."
+        ])
     }
 }

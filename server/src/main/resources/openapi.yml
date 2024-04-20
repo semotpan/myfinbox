@@ -253,3 +253,22 @@ components:
           type: string
           example: "Necessities spending: Rent, Food, Bills etc."
           description: Additional description attached to the jar.
+
+    JarCategoryModificationResource:
+      type: object
+      description: Object representing the modification of expense categories associated with a jar for tracking expenses.
+      properties:
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              categoryId:
+                type: string
+                format: uuid
+                description: Unique identifier for the expense category.
+              toAdd:
+                type: boolean
+                default: true
+                example: true
+                description: Flag indicating whether to add or remove the category.
