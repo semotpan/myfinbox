@@ -1,6 +1,5 @@
 package io.myfinbox.spendingplan.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,24 +10,30 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.*;
-import static lombok.AccessLevel.PRIVATE;
+import static jakarta.persistence.CascadeType.ALL;
+import static lombok.AccessLevel.PACKAGE;
 
 @Entity
 @Table(name = "spending_jars")
 @Getter
 @ToString
-@EqualsAndHashCode
-@NoArgsConstructor(access = PRIVATE, force = true)
+@EqualsAndHashCode(of = {"id", "name"})
+@NoArgsConstructor(access = PACKAGE, force = true)
 public class Jar {
 
     public static final int MAX_NAME_LENGTH = 255;
 
     @EmbeddedId
     private final JarIdentifier id;
+
     private final Instant creationTimestamp;
+
+    private String name;
+    private String description;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "percentage"))
@@ -39,12 +44,12 @@ public class Jar {
     @CompositeType(MonetaryAmountType.class)
     private MonetaryAmount amountToReach;
 
-    private String name;
-    private String description;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", referencedColumnName = "id", nullable = false)
     private Plan plan;
+
+    @OneToMany(mappedBy = "jar", cascade = ALL, orphanRemoval = true)
+    private List<JarExpenseCategory> jarExpenseCategories;
 
     @Builder
     public Jar(Percentage percentage,
@@ -74,31 +79,15 @@ public class Jar {
         this.amountToReach = greaterThanZero(amountToReach, "amountToReach must be greater than 0.");
     }
 
-    @JsonIgnore
     public BigDecimal getAmountToReachAsNumber() {
         return amountToReach.getNumber().numberValue(BigDecimal.class)
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    @JsonIgnore
     public String getCurrencyCode() {
         return amountToReach.getCurrency().getCurrencyCode();
     }
 
-    @Embeddable
-    public record JarIdentifier(UUID id) implements Serializable {
-
-        public JarIdentifier {
-            notNull(id, "id cannot be null");
-        }
-
-        @Override
-        public String toString() {
-            return id.toString();
-        }
-    }
-
-    @Embeddable
     public record Percentage(Integer value) implements Serializable {
 
         public Percentage {

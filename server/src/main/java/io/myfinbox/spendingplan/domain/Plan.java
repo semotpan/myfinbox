@@ -17,14 +17,14 @@ import java.util.UUID;
 import static io.myfinbox.shared.Guards.*;
 import static jakarta.persistence.CascadeType.ALL;
 import static java.util.Objects.requireNonNull;
-import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PACKAGE;
 
 @Entity
 @Table(name = "spending_plans")
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor(access = PRIVATE, force = true)
+@EqualsAndHashCode(callSuper = false, of = {"id", "name", "account"})
+@NoArgsConstructor(access = PACKAGE, force = true)
 public class Plan extends AbstractAggregateRoot<Plan> {
 
     public static final int MAX_NAME_LENGTH = 255;
@@ -34,6 +34,9 @@ public class Plan extends AbstractAggregateRoot<Plan> {
 
     private final Instant creationTimestamp;
 
+    private String name;
+    private String description;
+
     @Embedded
     @AttributeOverride(name = "id", column = @Column(name = "account_id"))
     private final AccountIdentifier account;
@@ -42,9 +45,6 @@ public class Plan extends AbstractAggregateRoot<Plan> {
     @AttributeOverride(name = "currency", column = @Column(name = "currency"))
     @CompositeType(MonetaryAmountType.class)
     private MonetaryAmount amount;
-
-    private String name;
-    private String description;
 
     @OneToMany(mappedBy = "plan", cascade = ALL, orphanRemoval = true)
     private final List<Jar> jars = new ArrayList<>();

@@ -1,12 +1,13 @@
 package io.myfinbox.spendingplan
 
-
 import com.fasterxml.jackson.databind.json.JsonMapper
 import groovy.json.JsonOutput
 import io.myfinbox.spendingplan.application.JarCommand
 import io.myfinbox.spendingplan.application.PlanCommand
 import io.myfinbox.spendingplan.domain.Jar
 import io.myfinbox.spendingplan.domain.Plan
+
+import static io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoriesCommand
 
 class DataSamples {
 
@@ -17,6 +18,8 @@ class DataSamples {
     static planId = "3b257779-a5db-4e87-9365-72c6f8d4977d"
     static jarId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
     static accountId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
+    static jarCategoryId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
+    static jarCategoryId2 = "ee0a4cdc-84f0-4f81-8aea-224dad4915e7"
     static timestamp = "2024-03-23T10:00:04.224870Z"
     static amount = 1000.0
     static currency = 'EUR'
@@ -72,6 +75,19 @@ class DataSamples {
             description  : "Necessities spending: Rent, Food, Bills etc.",
     ]
 
+    static JAR_CATEGORIES_COMMAND = [
+            categories: [JAR_CATEGORY_TO_ADD_OR_REMOVE]
+    ]
+
+    static JAR_CATEGORY_TO_ADD_OR_REMOVE = [
+            categoryId: jarCategoryId,
+            toAdd     : true
+    ]
+
+    static JAR_CATEGORIES_RESOURCE = [
+            categories: []
+    ]
+
     static newSampleCreatePlanResource(map = [:]) {
         JsonOutput.toJson(CREATE_PLAN_RESOURCE + map) as String
     }
@@ -94,5 +110,18 @@ class DataSamples {
 
     static newSampleJar(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(JAR + map) as String, Jar.class)
+    }
+
+    static newSampleJarCategoriesCommand(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(JAR_CATEGORIES_COMMAND + map) as String, JarCategoriesCommand.class)
+    }
+
+    static newSampleJarCategoryToAddAsMap(map = [:]) {
+        return JAR_CATEGORY_TO_ADD_OR_REMOVE + map
+    }
+
+
+    static newSampleJarCategoriesResource(map = [:]) {
+        JsonOutput.toJson(JAR_CATEGORIES_RESOURCE + map) as String
     }
 }

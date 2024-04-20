@@ -29,7 +29,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Table(name = "incomes")
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = PRIVATE, force = true) // JPA compliant
 public class Income extends AbstractAggregateRoot<Income> {
 
