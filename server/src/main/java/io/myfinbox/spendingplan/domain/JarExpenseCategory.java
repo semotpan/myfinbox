@@ -3,11 +3,12 @@ package io.myfinbox.spendingplan.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.myfinbox.shared.Guards.notNull;
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -33,23 +34,13 @@ public class JarExpenseCategory {
     @JoinColumn(name = "jar_id", referencedColumnName = "id", nullable = false)
     private final Jar jar;
 
+    @OneToMany(mappedBy = "jarExpenseCategory", cascade = ALL, orphanRemoval = true)
+    private List<ExpenseRecord> expenseRecords = new ArrayList<>();
+
     @Builder
     public JarExpenseCategory(Jar jar, CategoryIdentifier categoryId) {
         this.jar = notNull(jar, "jar cannot be null.");
         this.categoryId = notNull(categoryId, "categoryId cannot be null.");
         this.creationTimestamp = Instant.now();
-    }
-
-    @Embeddable
-    public record CategoryIdentifier(UUID id) implements Serializable {
-
-        public CategoryIdentifier {
-            notNull(id, "id cannot be null");
-        }
-
-        @Override
-        public String toString() {
-            return id.toString();
-        }
     }
 }
