@@ -8,6 +8,7 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 class DefaultIncomeSourceService implements IncomeSourceService {
@@ -50,6 +52,7 @@ class DefaultIncomeSourceService implements IncomeSourceService {
                 .toList();
 
         incomeSources.saveAll(values);
+        log.debug("Default Income Sources {} were created", values);
 
         return Either.right(values);
     }
@@ -69,6 +72,8 @@ class DefaultIncomeSourceService implements IncomeSourceService {
         var incomeSource = new IncomeSource(command.name(), new AccountIdentifier(command.accountId()));
         incomeSources.save(incomeSource);
 
+        log.debug("Income Source {} was created", incomeSource.getId());
+
         return Either.right(incomeSource);
     }
 
@@ -84,23 +89,24 @@ class DefaultIncomeSourceService implements IncomeSourceService {
             return Either.left(Failure.ofNotFound(SOURCE_NOT_FOUND_MESSAGE));
         }
 
-        var incomeSource = incomeSources.findByIdAndAccount(new IncomeSourceIdentifier(incomeSourceId), new AccountIdentifier(command.accountId()));
-        if (incomeSource.isEmpty()) {
+        var possibleIncomeSource = incomeSources.findByIdAndAccount(new IncomeSourceIdentifier(incomeSourceId), new AccountIdentifier(command.accountId()));
+        if (possibleIncomeSource.isEmpty()) {
             return Either.left(Failure.ofNotFound(SOURCE_NOT_FOUND_MESSAGE));
         }
 
-        if (incomeSource.get().sameName(command.name())) {
-            return Either.right(incomeSource.get());
+        if (possibleIncomeSource.get().sameName(command.name())) {
+            return Either.right(possibleIncomeSource.get());
         }
 
         if (incomeSources.existsByNameAndAccount(command.name(), new AccountIdentifier(command.accountId()))) {
             return Either.left(Failure.ofConflict(SOURCE_NAME_DUPLICATE_MESSAGE));
         }
 
-        incomeSource.get().setName(command.name());
-        incomeSources.save(incomeSource.get()); // FIXME: fix the save anti-pattern
+        possibleIncomeSource.get().setName(command.name());
+        incomeSources.save(possibleIncomeSource.get()); // FIXME: fix the save anti-pattern
+        log.debug("Income Source {} was updated", possibleIncomeSource.get().getId());
 
-        return Either.right(incomeSource.get());
+        return Either.right(possibleIncomeSource.get());
     }
 
     @Override
@@ -110,16 +116,17 @@ class DefaultIncomeSourceService implements IncomeSourceService {
             return Either.left(Failure.ofNotFound(SOURCE_NOT_FOUND_MESSAGE));
         }
 
-        var incomeSource = incomeSources.findById(new IncomeSourceIdentifier(incomeSourceId));
-        if (incomeSource.isEmpty()) {
+        var possibleIncomeSource = incomeSources.findById(new IncomeSourceIdentifier(incomeSourceId));
+        if (possibleIncomeSource.isEmpty()) {
             return Either.left(Failure.ofNotFound(SOURCE_NOT_FOUND_MESSAGE));
         }
 
-        if (incomes.existsByIncomeSource(incomeSource.get())) {
+        if (incomes.existsByIncomeSource(possibleIncomeSource.get())) {
             return Either.left(Failure.ofConflict(SOURCE_IN_USE_FAILURE_MESSAGE));
         }
 
-        incomeSources.delete(incomeSource.get());
+        incomeSources.delete(possibleIncomeSource.get());
+        log.debug("Income Source {} was deleted", possibleIncomeSource.get().getId());
 
         return Either.right(null);
     }

@@ -8,6 +8,7 @@ import io.myfinbox.spendingplan.domain.Plan;
 import io.myfinbox.spendingplan.domain.Plans;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import static io.myfinbox.spendingplan.domain.Plan.PlanIdentifier;
 import static java.math.RoundingMode.HALF_UP;
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -48,18 +50,18 @@ class CreateJarService implements CreateJarUseCase {
         }
 
         // find the plan
-        var plan = plans.findByIdEagerJars(new PlanIdentifier(planId));
-        if (plan.isEmpty()) {
+        var possiblePlan = plans.findByIdEagerJars(new PlanIdentifier(planId));
+        if (possiblePlan.isEmpty()) {
             return Either.left(Failure.ofNotFound(PLAN_NOT_FOUND_MESSAGE));
         }
 
         // check if jar name exists as jar to provided plan
-        if (jars.existsByNameAndPlan(command.name(), plan.get())) {
+        if (jars.existsByNameAndPlan(command.name(), possiblePlan.get())) {
             return Either.left(Failure.ofConflict(JAR_NAME_DUPLICATE_MESSAGE.formatted(command.name())));
         }
 
         // validate percentage total, must be up 100%
-        var existingTotalPercentage = plan.get().totalJarPercentage();
+        var existingTotalPercentage = possiblePlan.get().totalJarPercentage();
         if (isInvalidTotalPercentage(existingTotalPercentage, command.percentage())) {
             return Either.left(maxAllowedPercentageViolation(command.percentage(), 100 - existingTotalPercentage));
         }
@@ -67,12 +69,14 @@ class CreateJarService implements CreateJarUseCase {
         var jar = Jar.builder()
                 .name(command.name())
                 .percentage(new Jar.Percentage(command.percentage()))
-                .amountToReach(amountToReach(command.percentage(), plan.get()))
+                .amountToReach(amountToReach(command.percentage(), possiblePlan.get()))
                 .description(command.description())
-                .plan(plan.get())
+                .plan(possiblePlan.get())
                 .build();
 
         jars.save(jar);
+
+        log.debug("Expense jar {} was created", jar.getId());
 
         return Either.right(jar);
     }

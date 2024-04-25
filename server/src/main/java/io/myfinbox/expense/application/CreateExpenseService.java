@@ -9,10 +9,12 @@ import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.PaymentType;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,8 +35,8 @@ class CreateExpenseService implements CreateExpenseUseCase {
             return Either.left(Failure.ofValidation(VALIDATION_FAILURE_MESSAGE, validation.getError().toJavaList()));
         }
 
-        var category = categories.findByIdAndAccount(new CategoryIdentifier(command.categoryId()), new AccountIdentifier(command.accountId()));
-        if (category.isEmpty()) {
+        var possibleCategory = categories.findByIdAndAccount(new CategoryIdentifier(command.categoryId()), new AccountIdentifier(command.accountId()));
+        if (possibleCategory.isEmpty()) {
             return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
         }
 
@@ -44,10 +46,12 @@ class CreateExpenseService implements CreateExpenseUseCase {
                 .expenseDate(command.expenseDate())
                 .paymentType(PaymentType.fromValue(command.paymentType()))
                 .description(command.description())
-                .category(category.get())
+                .category(possibleCategory.get())
                 .build();
 
         expenses.save(expense);
+
+        log.debug("Expense {} was created", expense.getId());
 
         return Either.right(expense);
     }

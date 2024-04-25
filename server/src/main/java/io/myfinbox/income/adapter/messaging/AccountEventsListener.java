@@ -29,11 +29,11 @@ class AccountEventsListener {
     @ApplicationModuleListener
     @Transactional(propagation = REQUIRES_NEW)
     public void on(AccountCreated event) {
-        log.debug("Handle account create event {}", event);
+        log.debug("[Income] Handle account create event {}", event);
         var either = incomeSourceService.createDefault(new AccountIdentifier(event.accountId()));
 
         if (either.isLeft()) {
-            log.error("Failed to create default income sources for account: {}, failure: {}", event, either.getLeft());
+            log.error("[Income] Failed to create default income sources for account: {}, failure: {}", event, either.getLeft());
         }
     }
 }

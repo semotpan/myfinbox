@@ -8,6 +8,7 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import static io.myfinbox.account.application.CreateAccountUseCase.CreateAccount
 import static io.vavr.API.Invalid;
 import static io.vavr.API.Valid;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ class CreateAccountService implements CreateAccountUseCase {
                 .build();
 
         accounts.save(account);
+        log.debug("Account {} was created", account.getId());
 
         return Either.right(account);
     }

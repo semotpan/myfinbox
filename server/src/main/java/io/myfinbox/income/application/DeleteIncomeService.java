@@ -5,6 +5,7 @@ import io.myfinbox.income.domain.Incomes;
 import io.myfinbox.shared.Failure;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -27,14 +29,15 @@ class DeleteIncomeService implements DeleteIncomeUseCase {
             return Either.left(Failure.ofNotFound(INCOME_NOT_FOUND_MESSAGE));
         }
 
-        var income = incomes.findById(new IncomeIdentifier(incomeId));
-        if (income.isEmpty()) {
+        var possibleIncome = incomes.findById(new IncomeIdentifier(incomeId));
+        if (possibleIncome.isEmpty()) {
             return Either.left(Failure.ofNotFound(INCOME_NOT_FOUND_MESSAGE));
         }
 
-        income.get().delete();
+        possibleIncome.get().delete();
 
-        incomes.delete(income.get());
+        incomes.delete(possibleIncome.get());
+        log.debug("Income {} was deleted", possibleIncome.get().getId());
 
         return Either.right(null);
     }

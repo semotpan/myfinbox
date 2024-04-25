@@ -6,6 +6,7 @@ import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.PaymentType;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import static io.myfinbox.income.domain.IncomeSource.IncomeSourceIdentifier;
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -40,17 +42,17 @@ class UpdateIncomeService implements UpdateIncomeUseCase {
             return Either.left(Failure.ofNotFound(INCOME_NOT_FOUND_MESSAGE));
         }
 
-        var income = incomes.findByIdAndAccount(new IncomeIdentifier(incomeId), new AccountIdentifier(command.accountId()));
-        if (income.isEmpty()) {
+        var possibleIncome = incomes.findByIdAndAccount(new IncomeIdentifier(incomeId), new AccountIdentifier(command.accountId()));
+        if (possibleIncome.isEmpty()) {
             return Either.left(Failure.ofNotFound(INCOME_NOT_FOUND_MESSAGE));
         }
 
-        var possibleIncomeSource = fetchIncomeSourceOrFailure(income.get().getIncomeSource(), command.incomeSourceId(), command.accountId());
+        var possibleIncomeSource = fetchIncomeSourceOrFailure(possibleIncome.get().getIncomeSource(), command.incomeSourceId(), command.accountId());
         if (possibleIncomeSource.isLeft()) {
             return Either.left(possibleIncomeSource.getLeft());
         }
 
-        income.get().update(
+        possibleIncome.get().update(
                 Income.builder()
                         .account(new AccountIdentifier(command.accountId()))
                         .amount(Money.of(command.amount(), command.currencyCode()))
@@ -60,9 +62,10 @@ class UpdateIncomeService implements UpdateIncomeUseCase {
                         .incomeSource(possibleIncomeSource.get())
         );
 
-        incomes.save(income.get());
+        incomes.save(possibleIncome.get());
+        log.debug("Income {} was updated", possibleIncome.get().getId());
 
-        return Either.right(income.get());
+        return Either.right(possibleIncome.get());
     }
 
     private Either<Failure, IncomeSource> fetchIncomeSourceOrFailure(IncomeSource incomeSource, UUID incomeSourceId, UUID accountId) {
