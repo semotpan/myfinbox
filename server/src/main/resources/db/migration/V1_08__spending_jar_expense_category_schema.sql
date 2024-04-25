@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS spending_jar_expense_category
 (
-    id                 SERIAL PRIMARY KEY,
+    id                 BIGSERIAL PRIMARY KEY,
     jar_id             UUID      NOT NULL,
     category_id        UUID      NOT NULL,
     creation_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -1,6 +1,7 @@
 package io.myfinbox.spendingplan.application
 
 import io.myfinbox.shared.Failure
+import io.myfinbox.spendingplan.domain.CategoryIdentifier
 import io.myfinbox.spendingplan.domain.JarExpenseCategories
 import io.myfinbox.spendingplan.domain.JarIdentifier
 import io.myfinbox.spendingplan.domain.Jars
@@ -9,7 +10,6 @@ import spock.lang.Tag
 
 import static io.myfinbox.spendingplan.DataSamples.*
 import static io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryService.*
-import static io.myfinbox.spendingplan.domain.JarExpenseCategory.CategoryIdentifier
 import static io.myfinbox.spendingplan.domain.Plan.PlanIdentifier
 import static java.lang.Boolean.FALSE
 

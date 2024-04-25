@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import static io.myfinbox.spendingplan.domain.JarExpenseCategory.CategoryIdentifier;
 import static io.myfinbox.spendingplan.domain.Plan.PlanIdentifier;
 import static java.util.Objects.isNull;
 

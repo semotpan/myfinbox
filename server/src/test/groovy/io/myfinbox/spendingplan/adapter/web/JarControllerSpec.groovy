@@ -3,6 +3,7 @@ package io.myfinbox.spendingplan.adapter.web
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
+import io.myfinbox.spendingplan.domain.CategoryIdentifier
 import io.myfinbox.spendingplan.domain.JarExpenseCategories
 import io.myfinbox.spendingplan.domain.JarIdentifier
 import org.skyscreamer.jsonassert.JSONAssert
@@ -22,7 +23,6 @@ import spock.lang.Specification
 import spock.lang.Tag
 
 import static io.myfinbox.spendingplan.DataSamples.*
-import static io.myfinbox.spendingplan.domain.JarExpenseCategory.CategoryIdentifier
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpMethod.PUT

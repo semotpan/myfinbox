@@ -5,8 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static io.myfinbox.spendingplan.domain.JarExpenseCategory.CategoryIdentifier;
-
 @Repository
 public interface JarExpenseCategories extends CrudRepository<JarExpenseCategory, Long> {
 
@@ -15,5 +13,7 @@ public interface JarExpenseCategories extends CrudRepository<JarExpenseCategory,
     boolean existsByJarIdAndCategoryId(JarIdentifier jarId, CategoryIdentifier categoryId);
 
     void deleteByJarIdAndCategoryId(JarIdentifier jarId, CategoryIdentifier categoryId);
+
+    List<JarExpenseCategory> findByCategoryId(CategoryIdentifier categoryId);
 
 }
