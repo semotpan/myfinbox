@@ -4,6 +4,7 @@ import io.myfinbox.shared.Failure;
 import io.myfinbox.spendingplan.domain.*;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 import static io.myfinbox.spendingplan.domain.Plan.PlanIdentifier;
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,22 +38,27 @@ class AddOrRemoveJarCategoryService implements AddOrRemoveJarCategoryUseCase {
         }
 
         // require plan jar to exist
-        var jar = jars.findByIdAndPlanId(new JarIdentifier(jarId), new PlanIdentifier(planId));
-        if (jar.isEmpty()) {
+        var possibleJar = jars.findByIdAndPlanId(new JarIdentifier(jarId), new PlanIdentifier(planId));
+        if (possibleJar.isEmpty()) {
             return Either.left(Failure.ofNotFound(PLAN_JAR_NOT_FOUND_MESSAGE));
         }
 
         // select unchecked and delete
-        command.categories().stream()
+        var toDeleteCategories = command.categories().stream()
                 .filter(jarCategoryToAddOrRemove -> !jarCategoryToAddOrRemove.toAdd())
                 .map(JarCategoryToAddOrRemove::categoryId)
-                .forEach(category ->
-                        jarExpenseCategories.deleteByJarIdAndCategoryId(new JarIdentifier(jarId), new CategoryIdentifier(category)));
+                .toList();
+
+        toDeleteCategories.forEach(category ->
+                jarExpenseCategories.deleteByJarIdAndCategoryId(new JarIdentifier(jarId), new CategoryIdentifier(category)));
 
         // select checked and create if not exists
-        var toCreateCategories = filterToCreate(jar.get(), command);
+        var toCreateCategories = filterToCreate(possibleJar.get(), command);
 
         jarExpenseCategories.saveAll(toCreateCategories);
+
+        log.debug("Jar expense category {} were created", toCreateCategories);
+        log.debug("Jar expense category {} were deleted", toDeleteCategories);
 
         return Either.right(toCreateCategories);
     }

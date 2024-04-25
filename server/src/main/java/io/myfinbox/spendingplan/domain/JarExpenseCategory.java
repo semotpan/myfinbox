@@ -14,7 +14,7 @@ import static lombok.AccessLevel.PACKAGE;
 
 @Entity
 @Getter
-@ToString
+@ToString(exclude = {"jar", "expenseRecords"})
 @Table(name = "spending_jar_expense_category")
 @EqualsAndHashCode(of = {"jar", "categoryId"})
 @NoArgsConstructor(access = PACKAGE, force = true)

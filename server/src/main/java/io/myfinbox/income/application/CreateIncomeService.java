@@ -1,5 +1,6 @@
 package io.myfinbox.income.application;
 
+import io.myfinbox.expense.domain.Expense;
 import io.myfinbox.income.domain.AccountIdentifier;
 import io.myfinbox.income.domain.Income;
 import io.myfinbox.income.domain.IncomeSource.IncomeSourceIdentifier;
@@ -9,10 +10,12 @@ import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.PaymentType;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -34,9 +37,8 @@ class CreateIncomeService implements CreateIncomeUseCase {
             return Either.left(Failure.ofValidation(VALIDATION_FAILURE_MESSAGE, validation.getError().toJavaList()));
         }
 
-        var incomeSource = incomeSources.findByIdAndAccount(new IncomeSourceIdentifier(command.incomeSourceId()), new AccountIdentifier(command.accountId()));
-
-        if (incomeSource.isEmpty()) {
+        var possibleIncomeSource = incomeSources.findByIdAndAccount(new IncomeSourceIdentifier(command.incomeSourceId()), new AccountIdentifier(command.accountId()));
+        if (possibleIncomeSource.isEmpty()) {
             return Either.left(Failure.ofNotFound(INCOME_SOURCE_NOT_FOUND_MESSAGE));
         }
 
@@ -46,10 +48,12 @@ class CreateIncomeService implements CreateIncomeUseCase {
                 .paymentType(PaymentType.fromValue(command.paymentType()))
                 .incomeDate(command.incomeDate())
                 .description(command.description())
-                .incomeSource(incomeSource.get())
+                .incomeSource(possibleIncomeSource.get())
                 .build();
 
         incomes.save(income);
+
+        log.debug("Income {} was created", income.getId());
 
         return Either.right(income);
     }

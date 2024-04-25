@@ -5,6 +5,7 @@ import io.myfinbox.spendingplan.domain.ExpenseRecord;
 import io.myfinbox.spendingplan.domain.ExpenseRecords;
 import io.myfinbox.spendingplan.domain.JarExpenseCategories;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 import static io.myfinbox.spendingplan.domain.ExpenseRecord.ExpenseIdentifier;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ class ExpenseRecordTrackerService implements ExpenseRecordTrackerUseCase {
                 .toList();
 
         expenseRecords.saveAll(records);
+        log.debug("Expense records {} were created", records);
 
         return records;
     }

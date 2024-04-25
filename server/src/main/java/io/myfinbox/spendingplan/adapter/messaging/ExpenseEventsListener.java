@@ -25,7 +25,7 @@ class ExpenseEventsListener {
      */
     @ApplicationModuleListener
     public void on(ExpenseCreated event) {
-        log.debug("Received ExpenseCreated event: {}", event);
+        log.debug("[Plan] Received ExpenseCreated event: {}", event);
 
         // Record the created expense
         var expenseRecord = expenseRecordTrackerUseCase.recordCreated(ExpenseCreatedRecord.builder()
@@ -38,7 +38,7 @@ class ExpenseEventsListener {
                 .build());
 
         if (expenseRecord.isEmpty()) {
-            log.debug("ExpenseCreated event: {} skipped", event);
+            log.debug("[Plan] ExpenseCreated event: {} skipped", event);
         }
     }
 }

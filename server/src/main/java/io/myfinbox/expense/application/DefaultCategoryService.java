@@ -8,6 +8,7 @@ import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 class DefaultCategoryService implements CategoryService {
@@ -51,6 +53,8 @@ class DefaultCategoryService implements CategoryService {
 
         categories.saveAll(values);
 
+        log.debug("Default expense categories {} were created", values);
+
         return Either.right(values);
     }
 
@@ -69,6 +73,8 @@ class DefaultCategoryService implements CategoryService {
         var category = new Category(command.name(), new AccountIdentifier(command.accountId()));
         categories.save(category);
 
+        log.debug("Expense category {} was created", category.getId());
+
         return Either.right(category);
     }
 
@@ -84,23 +90,25 @@ class DefaultCategoryService implements CategoryService {
             return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
         }
 
-        var category = categories.findByIdAndAccount(new CategoryIdentifier(categoryId), new AccountIdentifier(command.accountId()));
-        if (category.isEmpty()) {
+        var possibleCategory = categories.findByIdAndAccount(new CategoryIdentifier(categoryId), new AccountIdentifier(command.accountId()));
+        if (possibleCategory.isEmpty()) {
             return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
         }
 
-        if (category.get().sameName(command.name())) {
-            return Either.right(category.get());
+        if (possibleCategory.get().sameName(command.name())) {
+            return Either.right(possibleCategory.get());
         }
 
         if (categories.existsByNameAndAccount(command.name(), new AccountIdentifier(command.accountId()))) {
             return Either.left(Failure.ofConflict(CATEGORY_NAME_DUPLICATE_MESSAGE));
         }
 
-        category.get().setName(command.name());
-        categories.save(category.get()); // FIXME: fix the save anti-pattern
+        possibleCategory.get().setName(command.name());
+        categories.save(possibleCategory.get()); // FIXME: fix the save anti-pattern
 
-        return Either.right(category.get());
+        log.debug("Expense category {} wes updated", possibleCategory.get().getId());
+
+        return Either.right(possibleCategory.get());
     }
 
     @Override
@@ -110,16 +118,18 @@ class DefaultCategoryService implements CategoryService {
             return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
         }
 
-        var category = categories.findById(new CategoryIdentifier(categoryId));
-        if (category.isEmpty()) {
+        var possibleCategory = categories.findById(new CategoryIdentifier(categoryId));
+        if (possibleCategory.isEmpty()) {
             return Either.left(Failure.ofNotFound(CATEGORY_NOT_FOUND_MESSAGE));
         }
 
-        if (expenses.existsByCategory(category.get())) {
+        if (expenses.existsByCategory(possibleCategory.get())) {
             return Either.left(Failure.ofConflict(CATEGORY_IN_USE_FAILURE_MESSAGE));
         }
 
-        categories.delete(category.get());
+        categories.delete(possibleCategory.get());
+
+        log.debug("Expense category {} wes deleted", possibleCategory.get().getId());
 
         return Either.right(null);
     }

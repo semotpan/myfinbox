@@ -7,6 +7,7 @@ import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.PaymentType;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 import static java.util.Objects.isNull;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -40,17 +42,17 @@ class UpdateExpenseService implements UpdateExpenseUseCase {
             return Either.left(Failure.ofNotFound(EXPENSE_NOT_FOUND_MESSAGE));
         }
 
-        var expense = expenses.findByIdAndAccount(new ExpenseIdentifier(expenseId), new AccountIdentifier(command.accountId()));
-        if (expense.isEmpty()) {
+        var possibleExpense = expenses.findByIdAndAccount(new ExpenseIdentifier(expenseId), new AccountIdentifier(command.accountId()));
+        if (possibleExpense.isEmpty()) {
             return Either.left(Failure.ofNotFound(EXPENSE_NOT_FOUND_MESSAGE));
         }
 
-        var possibleCategory = fetchCategoryOrFailure(expense.get().getCategory(), command.categoryId(), command.accountId());
+        var possibleCategory = fetchCategoryOrFailure(possibleExpense.get().getCategory(), command.categoryId(), command.accountId());
         if (possibleCategory.isLeft()) {
             return Either.left(possibleCategory.getLeft());
         }
 
-        expense.get().update(
+        possibleExpense.get().update(
                 Expense.builder()
                         .account(new AccountIdentifier(command.accountId()))
                         .amount(Money.of(command.amount(), command.currencyCode()))
@@ -60,9 +62,11 @@ class UpdateExpenseService implements UpdateExpenseUseCase {
                         .category(possibleCategory.get())
         );
 
-        expenses.save(expense.get());
+        expenses.save(possibleExpense.get()); //FIXME: fix save anti-pattern
 
-        return Either.right(expense.get());
+        log.debug("Expense {} was updated", possibleExpense.get().getId());
+
+        return Either.right(possibleExpense.get());
     }
 
     private Either<Failure, Category> fetchCategoryOrFailure(Category category, UUID categoryId, UUID accountId) {

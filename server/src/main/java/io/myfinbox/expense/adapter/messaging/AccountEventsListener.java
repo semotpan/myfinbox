@@ -25,11 +25,11 @@ class AccountEventsListener {
      */
     @ApplicationModuleListener
     public void on(AccountCreated event) {
-        log.debug("Handle account create event {}", event);
+        log.debug("[Expense] Handle account create event {}", event);
         var either = categoryService.createDefault(new AccountIdentifier(event.accountId()));
 
         if (either.isLeft()) {
-            log.error("Failed to create default categories for account: {}, failure: {}", event, either.getLeft());
+            log.error("[Expense] Failed to create default categories for account: {}, failure: {}", event, either.getLeft());
         }
     }
 }

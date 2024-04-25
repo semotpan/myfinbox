@@ -6,10 +6,12 @@ import io.myfinbox.spendingplan.domain.Plan;
 import io.myfinbox.spendingplan.domain.Plans;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -41,6 +43,7 @@ class CreatePlanService implements CreatePlanUseCase {
                 .build();
 
         plans.save(plan);
+        log.debug("Spending plan {} was created", plan.getId());
 
         return Either.right(plan);
     }
