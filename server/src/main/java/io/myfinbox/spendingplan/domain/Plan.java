@@ -22,7 +22,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Entity
 @Table(name = "spending_plans")
 @Getter
-@ToString
+@ToString(exclude = "jars")
 @EqualsAndHashCode(callSuper = false, of = {"id", "name", "account"})
 @NoArgsConstructor(access = PACKAGE, force = true)
 public class Plan extends AbstractAggregateRoot<Plan> {

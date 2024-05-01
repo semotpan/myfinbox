@@ -26,7 +26,7 @@ class CreatePlanServiceSpec extends Specification {
     }
 
     def "should fail plan creation when accountId is null"() {
-        given: 'a new income command with null accountId'
+        given: 'a new plan command with null accountId'
         def command = newSampleCreatePlanCommand(accountId: null)
 
         when: 'attempting to create a plan with a null accountId'

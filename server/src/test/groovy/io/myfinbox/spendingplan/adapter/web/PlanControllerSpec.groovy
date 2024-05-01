@@ -3,6 +3,7 @@ package io.myfinbox.spendingplan.adapter.web
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
+import io.myfinbox.spendingplan.domain.Jars
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,6 +19,7 @@ import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
 
+import static io.myfinbox.spendingplan.DataSamples.newSampleClassicCreatePlanResource
 import static io.myfinbox.spendingplan.DataSamples.newSampleCreatePlanResource
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -36,6 +38,9 @@ class PlanControllerSpec extends Specification {
 
     @Autowired
     TestRestTemplate restTemplate
+
+    @Autowired
+    Jars jars
 
     def cleanup() {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spending_jars', 'spending_plans')
@@ -72,8 +77,46 @@ class PlanControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedCreationFailure(), response.getBody(), LENIENT)
     }
 
+    def "should create a new classic spending plan"() {
+        given: 'user wants to create a classic spending plan'
+        var request = newSampleClassicCreatePlanResource()
+
+        when: 'classic plan is created'
+        var response = postClassicPlan(request)
+
+        then: 'response status is created'
+        assert response.getStatusCode() == CREATED
+
+        and: 'location header contains the created classic spending plan URL location'
+        assert response.getHeaders().getLocation() != null
+
+        and: 'body contains created resource'
+        JSONAssert.assertEquals(expectedClassicCreatedResource(response), response.getBody(), LENIENT)
+
+        and: 'six jars were created'
+        assert jars.findAll().size() == 6
+    }
+
+    def "should fail classic plan creation when request has validation failures"() {
+        given: 'user wants to create a new spending plan'
+        var request = '{}'
+
+        when: 'expense fails to create'
+        var response = postClassicPlan(request)
+
+        then: 'response has status code unprocessable entity'
+        assert response.getStatusCode() == UNPROCESSABLE_ENTITY
+
+        and: 'response body contains validation failure response'
+        JSONAssert.assertEquals(expectedClassicCreationFailure(), response.getBody(), LENIENT)
+    }
+
     def postPlan(String req) {
         restTemplate.postForEntity('/v1/plans', entityRequest(req), String.class)
+    }
+
+    def postClassicPlan(String req) {
+        restTemplate.postForEntity('/v1/plans/classic', entityRequest(req), String.class)
     }
 
     def entityRequest(String req) {
@@ -94,8 +137,22 @@ class PlanControllerSpec extends Specification {
         )
     }
 
+    def expectedClassicCreatedResource(ResponseEntity response) {
+        newSampleCreatePlanResource(
+                planId: idFromLocation(response.getHeaders().getLocation()),
+                name: 'My classic spending plan',
+                description: 'My classic plan distribution: Necessities(55%), Long Term Savings(10%), Education(10%), Play(10%), Financial(10%), Give(5%).'
+        )
+    }
+
     def expectedCreationFailure() {
         def filePath = 'spendingplan/web/plan-creation-failure-response.json'
+        def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
+        JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedClassicCreationFailure() {
+        def filePath = 'spendingplan/web/classic-plan-creation-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
     }
