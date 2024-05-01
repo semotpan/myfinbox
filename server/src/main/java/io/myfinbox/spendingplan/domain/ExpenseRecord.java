@@ -13,19 +13,20 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.notNull;
-import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PACKAGE;
 
 @Entity
 @Getter
 @ToString(exclude = {"jarExpenseCategory"})
 @Table(name = "jar_expense_record")
-@EqualsAndHashCode(of = {"expenseId", "jarExpenseCategory"})
+@EqualsAndHashCode(of = {"id", "expenseId", "jarExpenseCategory"})
 @NoArgsConstructor(access = PACKAGE, force = true)
 public class ExpenseRecord {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "jer_seq_id")
+    @SequenceGenerator(name = "jer_seq_id", sequenceName = "jer_seq_id", allocationSize = 1)
+    // https://vladmihalcea.com/migrate-hilo-hibernate-pooled/
     private Long id;
 
     @Embedded
@@ -65,6 +66,17 @@ public class ExpenseRecord {
         this.expenseDate = notNull(expenseDate, "expenseDate cannot be null.");
         this.jarExpenseCategory = notNull(jarExpenseCategory, "jarExpenseCategory cannot be null.");
         this.creationTimestamp = Instant.now();
+    }
+
+    public void update(ExpenseRecordBuilder builder) {
+        notNull(builder, "builder cannot be null.");
+        this.amount = notNull(builder.amount, "amount cannot be null.");
+        this.paymentType = notNull(builder.paymentType, "paymentType cannot be null.");
+        this.expenseDate = notNull(builder.expenseDate, "expenseDate cannot be null.");
+    }
+
+    public boolean match(CategoryIdentifier categoryId) {
+        return this.categoryId.equals(categoryId);
     }
 
     @Embeddable

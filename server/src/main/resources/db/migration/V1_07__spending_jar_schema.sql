@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS spending_jars
 )
 ;
 
-CREATE UNIQUE INDEX unique_spending_jar_name_plan_id_idx ON spending_jars (name, plan_id);
+CREATE UNIQUE INDEX IF NOT EXISTS unique_spending_jar_name_plan_id_idx ON spending_jars (name, plan_id);
 
-CREATE INDEX search_spending_plan_id_idx ON spending_jars (plan_id);
+CREATE INDEX IF NOT EXISTS search_spending_plan_id_idx ON spending_jars (plan_id);

@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS spending_plans
 )
 ;
 
-CREATE UNIQUE INDEX unique_spending_plan_name_account_id_idx ON spending_plans (account_id, name);
+CREATE UNIQUE INDEX IF NOT EXISTS unique_spending_plan_name_account_id_idx ON spending_plans (account_id, name);

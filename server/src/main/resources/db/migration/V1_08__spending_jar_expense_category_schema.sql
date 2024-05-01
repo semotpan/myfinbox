@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS spending_jar_expense_category
 )
 ;
 
-CREATE UNIQUE INDEX unique_spending_jar_expense_category_id_idx ON spending_jar_expense_category (jar_id, category_id);
+CREATE UNIQUE INDEX IF NOT EXISTS unique_spending_jar_expense_category_id_idx ON spending_jar_expense_category (jar_id, category_id);
 
-CREATE INDEX search_expense_category_jar_id_idx ON spending_jar_expense_category (jar_id);
+CREATE INDEX IF NOT EXISTS search_expense_category_jar_id_idx ON spending_jar_expense_category (jar_id);
+
+CREATE SEQUENCE IF NOT EXISTS sjec_seq_id START 1 INCREMENT 1;

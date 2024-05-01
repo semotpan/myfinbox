@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS income_source
     creation_timestamp TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX unique_source_name_account_id_idx ON income_source (account_id, name);
-CREATE UNIQUE INDEX unique_income_source_name_account_id_idx ON income_source (account_id, name);
+CREATE UNIQUE INDEX IF NOT EXISTS unique_source_name_account_id_idx ON income_source (account_id, name);
+
+CREATE UNIQUE INDEX IF NOT EXISTS unique_income_source_name_account_id_idx ON income_source (account_id, name);
