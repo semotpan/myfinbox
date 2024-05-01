@@ -1,0 +1,19 @@
+{
+  "status": 422,
+  "errorCode": "UNPROCESSABLE_ENTITY",
+  "message": "Validation failed for the create spending plan request.",
+  "errors": [
+    {
+      "field": "accountId",
+      "message": "AccountId cannot be null."
+    },
+    {
+      "field": "amount",
+      "message": "Amount cannot be null."
+    },
+    {
+      "field": "currencyCode",
+      "message": "CurrencyCode cannot be null."
+    }
+  ]
+}

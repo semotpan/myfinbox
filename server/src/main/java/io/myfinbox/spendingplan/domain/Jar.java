@@ -20,7 +20,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Entity
 @Table(name = "spending_jars")
 @Getter
-@ToString
+@ToString(exclude = {"plan", "jarExpenseCategories"})
 @EqualsAndHashCode(of = {"id", "name"})
 @NoArgsConstructor(access = PACKAGE, force = true)
 public class Jar {

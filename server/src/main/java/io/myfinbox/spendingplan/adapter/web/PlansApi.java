@@ -1,6 +1,7 @@
 package io.myfinbox.spendingplan.adapter.web;
 
-import io.myfinbox.rest.CreatePlanResource;
+import io.myfinbox.rest.CreateClassicPlanResource;
+import io.myfinbox.rest.PlanResource;
 import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -28,7 +29,7 @@ public interface PlansApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Spending plan created successfully",
                     headers = @Header(name = LOCATION, description = "Created spending plan source URI location", schema = @Schema(implementation = URI.class)),
-                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreatePlanResource.class))),
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = PlanResource.class))),
             @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Not found Failure",
@@ -40,6 +41,27 @@ public interface PlansApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> create(@RequestBody(description = "Spending Plan Resource to be created", required = true) CreatePlanResource resource);
+    ResponseEntity<?> create(@RequestBody(description = "Spending Plan Resource to be created", required = true) PlanResource resource);
+
+    @Operation(summary = "Add a new classic spending plan in the MyFinBox",
+            description = "Operation to add a classic plan distribution: Necessities(55%), Long Term Savings(10%), Education(10%), Play(10%), Financial(10%), Give(5%).",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Spending plan created successfully",
+                    headers = @Header(name = LOCATION, description = "Created spending plan source URI location", schema = @Schema(implementation = URI.class)),
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = PlanResource.class))),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Not found Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Spending plan name already exists",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "422", description = "Field validation failures",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> createClassic(@RequestBody(description = "Classic spending Plan Resource to be created", required = true) CreateClassicPlanResource resource);
 
 }

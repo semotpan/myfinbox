@@ -181,7 +181,7 @@ components:
           example: Base salary
           description: Additional description attached to the income.
 
-    CreatePlanResource:
+    PlanResource:
       type: object
       properties:
         planId:
@@ -272,3 +272,21 @@ components:
                 default: true
                 example: true
                 description: Flag indicating whether to add or remove the category.
+
+    CreateClassicPlanResource:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          example: 3b257779-a5db-4e87-9365-72c6f8d4977d
+          description: The ID of the account that submitted the spending plan.
+        amount:
+          type: number
+          example: 1000
+          description: The amount of the spending plan.
+        currencyCode:
+          type: string
+          example: MDL
+          pattern: '^[A-Z]{3}$'
+          description: The ISO 4217 currency code in uppercase (e.g., USD, EUR).

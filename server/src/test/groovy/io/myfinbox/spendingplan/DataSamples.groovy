@@ -13,6 +13,7 @@ import io.myfinbox.spendingplan.domain.JarExpenseCategory
 import io.myfinbox.spendingplan.domain.Plan
 
 import static io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoriesCommand
+import static io.myfinbox.spendingplan.application.ClassicPlanBuilderUseCase.CreateClassicPlanCommand
 import static io.myfinbox.spendingplan.application.ExpenseRecordTrackerUseCase.ExpenseModificationRecord
 
 class DataSamples {
@@ -48,12 +49,24 @@ class DataSamples {
             description : "My basic plan for tracking expenses",
     ]
 
+    static CREATE_CLASSIC_PLAN_RESOURCE = [
+            accountId   : accountId,
+            amount      : amount,
+            currencyCode: currency,
+    ]
+
     static PLAN_COMMAND = [
             name        : name,
             accountId   : accountId,
             amount      : amount,
             currencyCode: currency,
             description : "My basic plan for tracking expenses",
+    ]
+
+    static CLASSIC_PLAN_COMMAND = [
+            accountId   : accountId,
+            amount      : amount,
+            currencyCode: currency
     ]
 
     static PLAN = [
@@ -112,9 +125,9 @@ class DataSamples {
     ]
 
     static EXPENSE_RECORD = [
-            id: 1L,
+            id         : 1L,
             expenseId  : [id: expenseId],
-            categoryId : [id:  jarCategoryId],
+            categoryId : [id: jarCategoryId],
             paymentType: "CASH",
             amount     : AMOUNT,
             expenseDate: expenseDate,
@@ -133,8 +146,16 @@ class DataSamples {
         JsonOutput.toJson(CREATE_PLAN_RESOURCE + map) as String
     }
 
+    static newSampleClassicCreatePlanResource(map = [:]) {
+        JsonOutput.toJson(CREATE_CLASSIC_PLAN_RESOURCE + map) as String
+    }
+
     static newSampleCreatePlanCommand(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(PLAN_COMMAND + map) as String, PlanCommand.class)
+    }
+
+    static newSampleClassicCreatePlanCommand(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(CLASSIC_PLAN_COMMAND + map) as String, CreateClassicPlanCommand.class)
     }
 
     static newSamplePlan(map = [:]) {
