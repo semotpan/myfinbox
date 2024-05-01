@@ -9,19 +9,21 @@ import java.util.List;
 
 import static io.myfinbox.shared.Guards.notNull;
 import static jakarta.persistence.CascadeType.ALL;
-import static jakarta.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.GenerationType.SEQUENCE;
 import static lombok.AccessLevel.PACKAGE;
 
 @Entity
 @Getter
 @ToString(exclude = {"jar", "expenseRecords"})
 @Table(name = "spending_jar_expense_category")
-@EqualsAndHashCode(of = {"jar", "categoryId"})
+@EqualsAndHashCode(of = {"id", "jar", "categoryId"})
 @NoArgsConstructor(access = PACKAGE, force = true)
 public class JarExpenseCategory {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = SEQUENCE, generator = "jer_seq_id")
+    @SequenceGenerator(name = "jer_seq_id", sequenceName = "jer_seq_id", allocationSize = 1)
+    // https://vladmihalcea.com/migrate-hilo-hibernate-pooled/
     private Long id;
 
     private final Instant creationTimestamp;

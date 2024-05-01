@@ -3,6 +3,8 @@ package io.myfinbox.spendingplan
 import com.fasterxml.jackson.databind.json.JsonMapper
 import groovy.json.JsonOutput
 import io.myfinbox.expense.ExpenseCreated
+import io.myfinbox.expense.ExpenseDeleted
+import io.myfinbox.expense.ExpenseUpdated
 import io.myfinbox.spendingplan.application.JarCommand
 import io.myfinbox.spendingplan.application.PlanCommand
 import io.myfinbox.spendingplan.domain.ExpenseRecord
@@ -11,7 +13,7 @@ import io.myfinbox.spendingplan.domain.JarExpenseCategory
 import io.myfinbox.spendingplan.domain.Plan
 
 import static io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoriesCommand
-import static io.myfinbox.spendingplan.application.ExpenseRecordTrackerUseCase.ExpenseCreatedRecord
+import static io.myfinbox.spendingplan.application.ExpenseRecordTrackerUseCase.ExpenseModificationRecord
 
 class DataSamples {
 
@@ -91,7 +93,7 @@ class DataSamples {
             toAdd     : true
     ]
 
-    static EXPENSE_CREATE_RECORD = [
+    static EXPENSE_MODIFICATION_RECORD = [
             expenseId  : expenseId,
             accountId  : accountId,
             categoryId : jarCategoryId,
@@ -163,8 +165,8 @@ class DataSamples {
         JsonOutput.toJson(JAR_CATEGORIES_RESOURCE + map) as String
     }
 
-    static newSampleExpenseCreateRecord(map = [:]) {
-        MAPPER.readValue(JsonOutput.toJson(EXPENSE_CREATE_RECORD + map) as String, ExpenseCreatedRecord.class)
+    static newSampleExpenseModificationRecord(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_MODIFICATION_RECORD + map) as String, ExpenseModificationRecord.class)
     }
 
     static newSampleJarExpenseCategory(map = [:]) {
@@ -177,5 +179,13 @@ class DataSamples {
 
     static newSampleExpenseRecord(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(EXPENSE_RECORD + map) as String, ExpenseRecord.class)
+    }
+
+    static newSampleExpenseUpdatedEvent(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_EVENT + map) as String, ExpenseUpdated.class)
+    }
+
+    static newSampleExpenseDeletedEvent(map = [:]) {
+        MAPPER.readValue(JsonOutput.toJson(EXPENSE_EVENT + map) as String, ExpenseDeleted.class)
     }
 }
