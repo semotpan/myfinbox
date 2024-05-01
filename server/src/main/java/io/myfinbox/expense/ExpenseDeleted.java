@@ -10,6 +10,12 @@ import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.notNull;
 
+/**
+ * Represents a domain event for the deletion of an expense.
+ *
+ * <p>This record captures information about the deletion of an expense, including its unique identifier,
+ * the associated account and category, the amount, date, and payment type.</p>
+ */
 @Builder
 public record ExpenseDeleted(UUID expenseId,
                              UUID accountId,
@@ -18,6 +24,16 @@ public record ExpenseDeleted(UUID expenseId,
                              LocalDate expenseDate,
                              PaymentType paymentType) implements DomainEvent {
 
+    /**
+     * Constructor for the ExpenseDeleted record.
+     *
+     * @param expenseId   The unique identifier of the expense.
+     * @param accountId   The identifier of the account associated with the expense.
+     * @param categoryId  The identifier of the category associated with the expense.
+     * @param amount      The amount of the expense.
+     * @param expenseDate The date of the expense.
+     * @param paymentType The payment type of the expense.
+     */
     public ExpenseDeleted {
         notNull(expenseId, "expenseId cannot be null.");
         notNull(accountId, "accountId cannot be null.");
