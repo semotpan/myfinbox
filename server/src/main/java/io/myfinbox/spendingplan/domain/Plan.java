@@ -4,6 +4,7 @@ import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CompositeType;
+import org.javamoney.moneta.Money;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.money.MonetaryAmount;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.*;
@@ -47,7 +49,7 @@ public class Plan extends AbstractAggregateRoot<Plan> {
     private MonetaryAmount amount;
 
     @OneToMany(mappedBy = "plan", cascade = ALL, orphanRemoval = true)
-    private final List<Jar> jars = new ArrayList<>();
+    private List<Jar> jars = new ArrayList<>();
 
     @Builder
     public Plan(AccountIdentifier account,
@@ -85,6 +87,33 @@ public class Plan extends AbstractAggregateRoot<Plan> {
                 .map(Jar::getPercentage)
                 .mapToInt(Jar.Percentage::value)
                 .sum();
+    }
+
+    public boolean sameName(String name) {
+        return this.name.equals(name);
+    }
+
+    public boolean same(String name, Money amount, String description) {
+        return Objects.equals(this.amount, amount) && Objects.equals(this.name, name) && Objects.equals(this.description, description);
+    }
+
+    public void update(String name, Money amount, String description) {
+        // Keep existing amount
+        var existingAmount = this.amount;
+
+        // Update plan properties
+        setName(name);
+        setAmount(amount);
+        this.description = description;
+
+        // Recalculate jar amount to reach if plan amount changed
+        if (!existingAmount.getNumber().equals(this.amount.getNumber())) {
+            recalculateJarAmountToReach();
+        }
+    }
+
+    private void recalculateJarAmountToReach() {
+        jars.forEach(Jar::calculateAmountToReach);
     }
 
     @Embeddable

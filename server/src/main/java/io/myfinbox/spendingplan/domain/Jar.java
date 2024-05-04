@@ -4,6 +4,7 @@ import io.hypersistence.utils.hibernate.type.money.MonetaryAmountType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CompositeType;
+import org.javamoney.moneta.Money;
 
 import javax.money.MonetaryAmount;
 import java.io.Serializable;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.*;
 import static jakarta.persistence.CascadeType.ALL;
+import static java.math.RoundingMode.HALF_UP;
 import static lombok.AccessLevel.PACKAGE;
 
 @Entity
@@ -53,17 +55,16 @@ public class Jar {
 
     @Builder
     public Jar(Percentage percentage,
-               MonetaryAmount amountToReach,
                String name,
                String description,
                Plan plan) {
         this.id = new JarIdentifier(UUID.randomUUID());
         this.creationTimestamp = Instant.now();
         setPercentage(percentage);
-        setAmountToReach(amountToReach);
         setName(name);
         this.plan = notNull(plan, "plan cannot be null.");
         this.description = description;
+        calculateAmountToReach();
     }
 
     private void setPercentage(Percentage percentage) {
@@ -75,8 +76,11 @@ public class Jar {
         this.name = doesNotOverflow(name, MAX_NAME_LENGTH, "name overflow, max length allowed '%d'".formatted(MAX_NAME_LENGTH));
     }
 
-    private void setAmountToReach(MonetaryAmount amountToReach) {
-        this.amountToReach = greaterThanZero(amountToReach, "amountToReach must be greater than 0.");
+    public void calculateAmountToReach() {
+        BigDecimal percentageDecimal = BigDecimal.valueOf(percentage.value());
+        BigDecimal planAmountDecimal = plan.getAmountAsNumber();
+        BigDecimal result = planAmountDecimal.multiply(percentageDecimal.divide(BigDecimal.valueOf(100), 2, HALF_UP));
+        this.amountToReach = Money.of(result, plan.getCurrencyCode());
     }
 
     public BigDecimal getAmountToReachAsNumber() {
