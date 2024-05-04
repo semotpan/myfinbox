@@ -4,23 +4,18 @@ import io.myfinbox.shared.Failure;
 import io.myfinbox.shared.Failure.FieldViolation;
 import io.myfinbox.spendingplan.domain.Jar;
 import io.myfinbox.spendingplan.domain.Jars;
-import io.myfinbox.spendingplan.domain.Plan;
 import io.myfinbox.spendingplan.domain.Plans;
 import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.money.MonetaryAmount;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 import static io.myfinbox.spendingplan.application.JarCommand.FIELD_PERCENTAGE;
 import static io.myfinbox.spendingplan.domain.Plan.PlanIdentifier;
-import static java.math.RoundingMode.HALF_UP;
 import static java.util.Objects.isNull;
 
 @Slf4j
@@ -69,7 +64,6 @@ class CreateJarService implements CreateJarUseCase {
         var jar = Jar.builder()
                 .name(command.name())
                 .percentage(new Jar.Percentage(command.percentage()))
-                .amountToReach(amountToReach(command.percentage(), possiblePlan.get()))
                 .description(command.description())
                 .plan(possiblePlan.get())
                 .build();
@@ -87,15 +81,6 @@ class CreateJarService implements CreateJarUseCase {
                 .message("Maximum available percentage '%d'.".formatted(maxAllowedJarPercentage))
                 .rejectedValue(percentage)
                 .build()));
-    }
-
-    private MonetaryAmount amountToReach(Integer percentage, Plan plan) {
-        BigDecimal percentageDecimal = BigDecimal.valueOf(percentage);
-        BigDecimal planAmountDecimal = plan.getAmountAsNumber();
-
-        BigDecimal result = planAmountDecimal.multiply(percentageDecimal.divide(BigDecimal.valueOf(100), 2, HALF_UP));
-
-        return Money.of(result, plan.getCurrencyCode());
     }
 
     private boolean isInvalidTotalPercentage(int totalExistingPercentage, Integer percentage) {

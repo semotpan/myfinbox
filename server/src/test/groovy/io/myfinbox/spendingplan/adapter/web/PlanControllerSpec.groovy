@@ -15,16 +15,16 @@ import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.modulith.test.ApplicationModuleTest
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
 
-import static io.myfinbox.spendingplan.DataSamples.newSampleClassicCreatePlanResource
-import static io.myfinbox.spendingplan.DataSamples.newSampleCreatePlanResource
+import static io.myfinbox.spendingplan.DataSamples.*
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import static org.springframework.http.HttpStatus.CREATED
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY
+import static org.springframework.http.HttpMethod.PUT
+import static org.springframework.http.HttpStatus.*
 import static org.springframework.http.MediaType.APPLICATION_JSON
 
 @Tag("integration")
@@ -46,69 +46,108 @@ class PlanControllerSpec extends Specification {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, 'spending_jars', 'spending_plans')
     }
 
-    def "should create a new spending plan"() {
-        given: 'user wants to create a spending plan'
-        var request = newSampleCreatePlanResource()
+    def "should successfully create a new spending plan"() {
+        given: 'a user wants to create a spending plan'
+        def request = newSampleCreatePlanResource()
 
-        when: 'plan is created'
-        var response = postPlan(request)
+        when: 'the spending plan is created'
+        def response = postPlan(request)
 
-        then: 'response status is created'
+        then: 'the response status is "Created"'
         assert response.getStatusCode() == CREATED
 
-        and: 'location header contains the created spending plan URL location'
+        and: 'the location header contains the URL of the created spending plan'
         assert response.getHeaders().getLocation() != null
 
-        and: 'body contains created resource'
-        JSONAssert.assertEquals(expectedCreatedResource(response), response.getBody(), LENIENT)
+        and: 'the response body matches the expected created resource'
+        def expectedResource = expectedCreatedResource(response)
+        JSONAssert.assertEquals(expectedResource, response.getBody(), LENIENT)
     }
 
     def "should fail creation when request has validation failures"() {
-        given: 'user wants to create a new spending plan'
-        var request = '{}'
+        given: 'a user wants to create a new spending plan'
+        def request = '{}'
 
-        when: 'expense fails to create'
-        var response = postPlan(request)
+        when: 'the plan creation fails'
+        def response = postPlan(request)
 
-        then: 'response has status code unprocessable entity'
+        then: 'the response has status code Unprocessable Entity'
         assert response.getStatusCode() == UNPROCESSABLE_ENTITY
 
-        and: 'response body contains validation failure response'
-        JSONAssert.assertEquals(expectedCreationFailure(), response.getBody(), LENIENT)
+        and: 'the response body contains validation failure details'
+        def expectedFailure = expectedCreationFailure()
+        JSONAssert.assertEquals(expectedFailure, response.getBody(), LENIENT)
     }
 
     def "should create a new classic spending plan"() {
-        given: 'user wants to create a classic spending plan'
-        var request = newSampleClassicCreatePlanResource()
+        given: 'a user wants to create a classic spending plan'
+        def request = newSampleClassicCreatePlanResource()
 
-        when: 'classic plan is created'
-        var response = postClassicPlan(request)
+        when: 'the classic plan is created'
+        def response = postClassicPlan(request)
 
-        then: 'response status is created'
+        then: 'the response status is "Created"'
         assert response.getStatusCode() == CREATED
 
-        and: 'location header contains the created classic spending plan URL location'
+        and: 'the location header contains the URL of the created classic spending plan'
         assert response.getHeaders().getLocation() != null
 
-        and: 'body contains created resource'
-        JSONAssert.assertEquals(expectedClassicCreatedResource(response), response.getBody(), LENIENT)
+        and: 'the response body matches the expected created classic resource'
+        def expectedResource = expectedClassicCreatedResource(response)
+        JSONAssert.assertEquals(expectedResource, response.getBody(), LENIENT)
 
-        and: 'six jars were created'
+        and: 'six jars are created'
         assert jars.findAll().size() == 6
     }
 
     def "should fail classic plan creation when request has validation failures"() {
-        given: 'user wants to create a new spending plan'
-        var request = '{}'
+        given: 'a user wants to create a new classic spending plan'
+        def request = '{}'
 
-        when: 'expense fails to create'
-        var response = postClassicPlan(request)
+        when: 'the classic plan creation fails'
+        def response = postClassicPlan(request)
 
-        then: 'response has status code unprocessable entity'
+        then: 'the response has status code Unprocessable Entity'
         assert response.getStatusCode() == UNPROCESSABLE_ENTITY
 
-        and: 'response body contains validation failure response'
-        JSONAssert.assertEquals(expectedClassicCreationFailure(), response.getBody(), LENIENT)
+        and: 'the response body contains validation failure details'
+        def expectedFailure = expectedClassicCreationFailure()
+        JSONAssert.assertEquals(expectedFailure, response.getBody(), LENIENT)
+    }
+
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
+    def "should update an existing spending plan"() {
+        given: 'a user wants to update an existing spending plan'
+        def request = newSampleCreatePlanResource(
+                name: 'Update Name',
+                amount: 10000,
+                currencyCode: 'MDL',
+                description: "My personal MDL plan",
+        )
+
+        when: 'the plan is updated'
+        def response = putPlan(request)
+
+        then: 'the response status is "OK"'
+        assert response.getStatusCode() == OK
+
+        and: 'the response body contains the updated resource'
+        JSONAssert.assertEquals(expectedUpdatedResource(), response.getBody(), LENIENT)
+    }
+
+    def "should fail updating when request has validation failures"() {
+        given: 'a user wants to update an existing spending plan'
+        def invalidRequest = '{}'
+
+        when: 'the spending plan update fails'
+        def response = putPlan(invalidRequest)
+
+        then: 'the response has status code Unprocessable Entity'
+        assert response.getStatusCode() == UNPROCESSABLE_ENTITY
+
+        and: 'the response body contains validation failure details'
+        def expectedFailure = expectedUpdatingFailure()
+        JSONAssert.assertEquals(expectedFailure, response.getBody(), LENIENT)
     }
 
     def postPlan(String req) {
@@ -117,6 +156,15 @@ class PlanControllerSpec extends Specification {
 
     def postClassicPlan(String req) {
         restTemplate.postForEntity('/v1/plans/classic', entityRequest(req), String.class)
+    }
+
+    def putPlan(String req) {
+        restTemplate.exchange(
+                "/v1/plans/${planId}",
+                PUT,
+                entityRequest(req),
+                String.class
+        )
     }
 
     def entityRequest(String req) {
@@ -137,6 +185,15 @@ class PlanControllerSpec extends Specification {
         )
     }
 
+    def expectedUpdatedResource() {
+        newSampleCreatePlanResource(
+                name: 'Update Name',
+                amount: 10000,
+                currencyCode: 'MDL',
+                description: "My personal MDL plan",
+        )
+    }
+
     def expectedClassicCreatedResource(ResponseEntity response) {
         newSampleCreatePlanResource(
                 planId: idFromLocation(response.getHeaders().getLocation()),
@@ -147,6 +204,12 @@ class PlanControllerSpec extends Specification {
 
     def expectedCreationFailure() {
         def filePath = 'spendingplan/web/plan-creation-failure-response.json'
+        def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
+        JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedUpdatingFailure() {
+        def filePath = 'spendingplan/web/plan-update-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
     }
