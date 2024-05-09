@@ -68,7 +68,7 @@ set up. See [jib-doc](https://github.com/GoogleContainerTools/jib/tree/master/ji
       -p 8080:8080 \
       --network myfinboxdb-network \
       -e POSTGRES_HOST=postgres \
-      motpansergiu/myfinboxserver:latest
+      motpansergiu/myfinbox-server:latest
 ```
 ---
 ### Health Check
