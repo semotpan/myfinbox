@@ -1,6 +1,5 @@
 package io.myfinbox.income.application;
 
-import io.myfinbox.expense.domain.Expense;
 import io.myfinbox.income.domain.AccountIdentifier;
 import io.myfinbox.income.domain.Income;
 import io.myfinbox.income.domain.IncomeSource.IncomeSourceIdentifier;

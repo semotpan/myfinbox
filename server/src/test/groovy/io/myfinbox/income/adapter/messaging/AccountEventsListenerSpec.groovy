@@ -19,6 +19,7 @@ import spock.lang.Specification
 import spock.lang.Tag
 
 import java.time.Duration
+import java.time.ZoneId
 
 import static io.myfinbox.income.DataSamples.newSampleDefaultSources
 import static java.util.UUID.randomUUID
@@ -68,7 +69,14 @@ class AccountEventsListenerSpec extends Specification {
                 @Override
                 @Transactional
                 void run() {
-                    eventPublisher.publishEvent(new AccountCreated(accountId, "email@email.com", "Jon", "Snow"))
+                    eventPublisher.publishEvent(AccountCreated.builder()
+                            .accountId(accountId)
+                            .emailAddress("email@email.com")
+                            .firstName("Jon")
+                            .lastName("Snow")
+                            .currency(Currency.getInstance("MDL"))
+                            .zoneId(ZoneId.of("Europe/Chisinau"))
+                            .build())
                 }
             }
         }

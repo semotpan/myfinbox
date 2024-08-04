@@ -21,11 +21,15 @@ public interface CreateAccountUseCase {
     @Builder
     record CreateAccountCommand(String firstName,
                                 String lastName,
-                                String emailAddress) {
+                                String emailAddress,
+                                String currency,
+                                String zoneId) {
 
         public static final String FIELD_FIRST_NAME = "firstName";
         public static final String FIELD_LAST_NAME = "lastName";
         public static final String FIELD_EMAIL_ADDRESS = "emailAddress";
+        public static final String FIELD_CURRENCY = "currency";
+        public static final String FIELD_ZONE_ID = "zoneId";
 
     }
 }
