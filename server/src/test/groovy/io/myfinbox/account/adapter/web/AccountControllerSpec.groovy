@@ -19,6 +19,7 @@ import org.springframework.test.jdbc.JdbcTestUtils
 import spock.lang.Specification
 import spock.lang.Tag
 
+import static io.myfinbox.account.DataSamples.CREATE_ACCOUNT_RESOURCE
 import static io.myfinbox.account.DataSamples.newSampleAccountEvent
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -45,13 +46,9 @@ class AccountControllerSpec extends Specification {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, 'accounts')
     }
 
-    def "should create an new account"() {
+    def "should create an new account with default locale"() {
         given: 'user wants to create an account'
-        var request = JsonOutput.toJson([
-                firstName   : 'Jon',
-                lastName    : 'Snow',
-                emailAddress: 'jonsnow@gmail.com'
-        ])
+        var request = JsonOutput.toJson(CREATE_ACCOUNT_RESOURCE)
 
         when: 'account is created'
         var response = postNewAccount(request)
@@ -63,7 +60,7 @@ class AccountControllerSpec extends Specification {
         assert response.getHeaders().getLocation() != null
 
         and: 'body contains created resource'
-        assert response.getBody() == accountResource(idFromLocation(response.getHeaders().getLocation()))
+        JSONAssert.assertEquals(accountResource(idFromLocation(response.getHeaders().getLocation())), response.getBody(), LENIENT)
 
         and: 'account created event raised'
         assert events.ofType(AccountCreated.class).contains(
@@ -108,11 +105,6 @@ class AccountControllerSpec extends Specification {
     }
 
     def accountResource(UUID id) {
-        JsonOutput.toJson([
-                accountId   : id.toString(),
-                firstName   : 'Jon',
-                lastName    : 'Snow',
-                emailAddress: 'jonsnow@gmail.com'
-        ])
+        JsonOutput.toJson(CREATE_ACCOUNT_RESOURCE + [accountId: id.toString()])
     }
 }

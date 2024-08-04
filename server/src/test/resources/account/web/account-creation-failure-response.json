@@ -6,6 +6,10 @@
     {
       "field": "emailAddress",
       "message": "Email address cannot be empty."
+    },
+    {
+      "field": "zoneId",
+      "message": "ZoneId 'null' is invalid."
     }
   ]
 }

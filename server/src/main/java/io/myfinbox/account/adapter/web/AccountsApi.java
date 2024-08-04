@@ -3,6 +3,7 @@ package io.myfinbox.account.adapter.web;
 import io.myfinbox.rest.AccountCreateResource;
 import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +14,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
+import java.util.Locale;
 
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -37,6 +40,7 @@ public interface AccountsApi {
             @ApiResponse(responseCode = "500", description = "Internal Server Error",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    ResponseEntity<?> create(@RequestBody(description = "AccountResource to be created", required = true) AccountCreateResource resource);
+    ResponseEntity<?> create(@Parameter(in = HEADER) Locale locale,
+                             @RequestBody(description = "AccountResource to be created", required = true) AccountCreateResource resource);
 
 }

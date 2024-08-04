@@ -37,6 +37,15 @@ components:
           type: string
           example: Doe
           description: The last name of the account holder.
+        zoneId:
+          type: string
+          example: Europe/Paris
+          description: The user's time zone taken from browser, default 'Europe/Chisinau'
+        currency:
+          type: string
+          example: USD
+          description: The user's currency taken from locale, default MDL
+          readOnly: true
         emailAddress:
           type: string
           example: jondoe@email.com

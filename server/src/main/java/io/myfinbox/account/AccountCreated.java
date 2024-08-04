@@ -3,6 +3,8 @@ package io.myfinbox.account;
 import io.myfinbox.shared.DomainEvent;
 import lombok.Builder;
 
+import java.time.ZoneId;
+import java.util.Currency;
 import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.notBlank;
@@ -18,7 +20,9 @@ import static io.myfinbox.shared.Guards.notNull;
 public record AccountCreated(UUID accountId,
                              String emailAddress,
                              String firstName,
-                             String lastName) implements DomainEvent {
+                             String lastName,
+                             Currency currency,
+                             ZoneId zoneId) implements DomainEvent {
 
     /**
      * Constructor for the AccountCreated record.
@@ -27,9 +31,13 @@ public record AccountCreated(UUID accountId,
      * @param emailAddress The email address associated with the account.
      * @param firstName    The first name of the account holder.
      * @param lastName     The last name of the account holder.
+     * @param currency     The currency of the account holder.
+     * @param zoneId       The zoneId of the account holder.
      */
     public AccountCreated {
         notNull(accountId, "accountIdentifier cannot be null");
         notBlank(emailAddress, "emailAddress cannot be blank");
+        notNull(currency, "currency cannot be null");
+        notNull(zoneId, "zoneId cannot be null");
     }
 }

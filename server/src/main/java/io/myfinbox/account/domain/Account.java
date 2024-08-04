@@ -3,7 +3,6 @@ package io.myfinbox.account.domain;
 import io.myfinbox.account.AccountCreated;
 import jakarta.persistence.*;
 import lombok.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.io.Serializable;
@@ -11,7 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import static io.myfinbox.shared.Guards.*;
+import static io.myfinbox.shared.Guards.notNull;
 import static lombok.AccessLevel.PRIVATE;
 
 @Entity
@@ -27,28 +26,38 @@ public class Account extends AbstractAggregateRoot<Account> {
     public static final String patternRFC5322 = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
     static final Pattern pattern = Pattern.compile(patternRFC5322);
 
-    private @EmbeddedId AccountIdentifier id;
-    private @Embedded EmailAddress emailAddress;
-    private String firstName;
-    private String lastName;
-    private Instant creationDate;
+    @EmbeddedId
+    private final AccountIdentifier id;
+    private final Instant creationDate;
+
+    @Embedded
+    private EmailAddress emailAddress;
+
+    @Embedded
+    private AccountDetails accountDetails;
+
+    @Embedded
+    private Preference preference;
 
     @Builder
-    public Account(String firstName, String lastName, EmailAddress emailAddress) {
+    public Account(AccountDetails accountDetails,
+                   EmailAddress emailAddress,
+                   Preference preference) {
+        this.accountDetails = notNull(accountDetails, "accountDetails cannot be null");
         this.emailAddress = notNull(emailAddress, "emailAddress cannot be null");
-
-        if (!StringUtils.isBlank(firstName)) {
-            this.firstName = doesNotOverflow(firstName.trim(), MAX_LENGTH, "firstName overflow, max length allowed '%d'".formatted(MAX_LENGTH));
-        }
-
-        if (!StringUtils.isBlank(lastName)) {
-            this.lastName = doesNotOverflow(lastName.trim(), MAX_LENGTH, "lastName overflow, max length allowed '%d'".formatted(MAX_LENGTH));
-        }
+        this.preference = notNull(preference, "preference cannot be null");
 
         this.id = new AccountIdentifier(UUID.randomUUID());
         this.creationDate = Instant.now();
 
-        registerEvent(new AccountCreated(this.id.id(), this.emailAddress.emailAddress(), firstName, lastName));
+        registerEvent(AccountCreated.builder()
+                .accountId(this.id.id())
+                .emailAddress(this.emailAddress.emailAddress())
+                .firstName(this.accountDetails.firstName())
+                .lastName(this.accountDetails.lastName())
+                .currency(this.preference.currency())
+                .zoneId(this.preference.zoneId())
+                .build());
     }
 
     @Embeddable
@@ -61,21 +70,6 @@ public class Account extends AbstractAggregateRoot<Account> {
         @Override
         public String toString() {
             return id.toString();
-        }
-    }
-
-    @Embeddable
-    public record EmailAddress(String emailAddress) implements Serializable {
-
-        public EmailAddress {
-            notBlank(emailAddress, "emailAddress cannot be blank");
-            doesNotOverflow(emailAddress.trim(), MAX_LENGTH, "emailAddress max length must be '%d'".formatted(MAX_LENGTH));
-            matches(emailAddress, pattern, "emailAddress must match '%s'".formatted(patternRFC5322));
-        }
-
-        @Override
-        public String toString() {
-            return emailAddress;
         }
     }
 }
