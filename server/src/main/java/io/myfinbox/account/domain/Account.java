@@ -8,7 +8,6 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import static io.myfinbox.shared.Guards.notNull;
 import static lombok.AccessLevel.PRIVATE;
@@ -23,14 +22,12 @@ public class Account extends AbstractAggregateRoot<Account> {
 
     public static final int MAX_LENGTH = 255;
 
-    public static final String patternRFC5322 = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-    static final Pattern pattern = Pattern.compile(patternRFC5322);
-
     @EmbeddedId
     private final AccountIdentifier id;
-    private final Instant creationDate;
+    private final Instant creationTimestamp;
 
     @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "email_address"))
     private EmailAddress emailAddress;
 
     @Embedded
@@ -48,11 +45,11 @@ public class Account extends AbstractAggregateRoot<Account> {
         this.preference = notNull(preference, "preference cannot be null");
 
         this.id = new AccountIdentifier(UUID.randomUUID());
-        this.creationDate = Instant.now();
+        this.creationTimestamp = Instant.now();
 
         registerEvent(AccountCreated.builder()
                 .accountId(this.id.id())
-                .emailAddress(this.emailAddress.emailAddress())
+                .emailAddress(this.emailAddress.value())
                 .firstName(this.accountDetails.firstName())
                 .lastName(this.accountDetails.lastName())
                 .currency(this.preference.currency())

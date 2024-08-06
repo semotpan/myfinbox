@@ -11,7 +11,17 @@ class DataSamples {
             .findAndAddModules()
             .build()
 
-    static CREATE_ACCOUNT_RESOURCE = [
+    static ACCOUNT_RESOURCE = [
+            accountId        : "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca",
+            firstName        : "Jon",
+            lastName         : "Snow",
+            emailAddress     : "jonsnow@gmail.com",
+            zoneId           : "Europe/Chisinau",
+            currency         : "MDL",
+            creationTimestamp: "2024-03-23T10:00:04.224870Z"
+    ]
+
+    static ACCOUNT_CREATE_COMMAND = [
             firstName   : "Jon",
             lastName    : "Snow",
             emailAddress: "jonsnow@gmail.com",
@@ -29,7 +39,7 @@ class DataSamples {
     ]
 
     static newSampleCreateAccountCommand(map = [:]) {
-        MAPPER.readValue(JsonOutput.toJson(CREATE_ACCOUNT_RESOURCE + map) as String, CreateAccountCommand.class)
+        MAPPER.readValue(JsonOutput.toJson(ACCOUNT_CREATE_COMMAND + map) as String, CreateAccountCommand.class)
     }
 
     static newSampleAccountEvent(map = [:]) {
