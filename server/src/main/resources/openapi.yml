@@ -21,7 +21,7 @@ paths:
 components:
   schemas:
     #  Request Objects
-    AccountCreateResource:
+    AccountResource:
       type: object
       properties:
         accountId:
@@ -37,6 +37,11 @@ components:
           type: string
           example: Doe
           description: The last name of the account holder.
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the expense was created (read-only).
         zoneId:
           type: string
           example: Europe/Paris

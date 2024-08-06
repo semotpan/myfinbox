@@ -100,7 +100,7 @@ class CreateAccountService implements CreateAccountUseCase {
                         .build());
             }
 
-            if (Account.MAX_LENGTH < emailAddress.length()) {
+            if (EmailAddress.MAX_LENGTH < emailAddress.length()) {
                 return Invalid(FieldViolation.builder()
                         .field(FIELD_EMAIL_ADDRESS)
                         .message("Email address length cannot exceed '%d' characters.".formatted(Account.MAX_LENGTH))
@@ -108,7 +108,7 @@ class CreateAccountService implements CreateAccountUseCase {
                         .build());
             }
 
-            if (!Pattern.compile(Account.patternRFC5322).matcher(emailAddress).matches()) {
+            if (!Pattern.compile(EmailAddress.patternRFC5322).matcher(emailAddress).matches()) {
                 return Invalid(FieldViolation.builder()
                         .field(FIELD_EMAIL_ADDRESS)
                         .message("Email address must follow RFC 5322 standard.")

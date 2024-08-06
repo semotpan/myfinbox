@@ -8,20 +8,20 @@ import java.util.regex.Pattern;
 import static io.myfinbox.shared.Guards.*;
 
 @Embeddable
-public record EmailAddress(String emailAddress) implements Serializable {
+public record EmailAddress(String value) implements Serializable {
 
-    static final String patternRFC5322 = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+    public static final String patternRFC5322 = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
     static final Pattern pattern = Pattern.compile(patternRFC5322);
-    static final int MAX_LENGTH = 255;
+    public static final int MAX_LENGTH = 255;
 
     public EmailAddress {
-        notBlank(emailAddress, "emailAddress cannot be blank");
-        doesNotOverflow(emailAddress.trim(), MAX_LENGTH, "emailAddress max length must be '%d'".formatted(MAX_LENGTH));
-        matches(emailAddress, pattern, "emailAddress must match '%s'".formatted(patternRFC5322));
+        notBlank(value, "value cannot be blank");
+        doesNotOverflow(value.trim(), MAX_LENGTH, "value max length must be '%d'".formatted(MAX_LENGTH));
+        matches(value, pattern, "value must match '%s'".formatted(patternRFC5322));
     }
 
     @Override
     public String toString() {
-        return emailAddress;
+        return value;
     }
 }

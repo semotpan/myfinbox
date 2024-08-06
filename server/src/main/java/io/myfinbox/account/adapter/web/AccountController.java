@@ -1,8 +1,10 @@
 package io.myfinbox.account.adapter.web;
 
+import io.myfinbox.account.application.AccountQuery;
 import io.myfinbox.account.application.CreateAccountUseCase;
 import io.myfinbox.account.application.CreateAccountUseCase.CreateAccountCommand;
-import io.myfinbox.rest.AccountCreateResource;
+import io.myfinbox.account.domain.Account;
+import io.myfinbox.rest.AccountResource;
 import io.myfinbox.shared.ApiFailureHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Currency;
 import java.util.Locale;
+import java.util.UUID;
 
 import static java.util.Objects.isNull;
 import static org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE;
@@ -25,11 +28,12 @@ final class AccountController implements AccountsApi {
     static final Locale defaultLocale = Locale.of("en", "MD");
 
     private final CreateAccountUseCase createAccountUseCase;
+    private final AccountQuery accountQuery;
     private final ApiFailureHandler apiFailureHandler;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestHeader(name = ACCEPT_LANGUAGE, required = false) Locale locale,
-                                    @RequestBody AccountCreateResource resource) {
+                                    @RequestBody AccountResource resource) {
         var command = CreateAccountCommand.builder()
                 .firstName(resource.getFirstName())
                 .lastName(resource.getLastName())
@@ -46,6 +50,12 @@ final class AccountController implements AccountsApi {
                         ));
     }
 
+    @GetMapping(path = "/{accountId}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> one(@PathVariable UUID accountId) {
+        return accountQuery.findOne(accountId)
+                .fold(apiFailureHandler::handle, account -> ResponseEntity.ok(toResource(account)));
+    }
+
     private Locale resolve(Locale locale) {
         try {
             if (isNull(Currency.getInstance(locale).getCurrencyCode())) {
@@ -56,5 +66,16 @@ final class AccountController implements AccountsApi {
         }
 
         return locale;
+    }
+
+    private AccountResource toResource(Account account) {
+        return new AccountResource()
+                .accountId(account.getId().id())
+                .creationTimestamp(account.getCreationTimestamp().toString())
+                .firstName(account.getAccountDetails().firstName())
+                .lastName(account.getAccountDetails().lastName())
+                .emailAddress(account.getEmailAddress().value())
+                .zoneId(account.getPreference().zoneId().getId())
+                .currency(account.getPreference().currency().getCurrencyCode());
     }
 }

@@ -9,7 +9,7 @@ import java.time.Instant
 import java.time.ZoneId
 
 import static io.myfinbox.account.DataSamples.newSampleCreateAccountCommand
-import static io.myfinbox.account.application.CreateAccountService.*
+import static io.myfinbox.account.application.CreateAccountService.ERROR_MESSAGE
 import static org.apache.commons.lang3.RandomStringUtils.random
 
 @Tag("unit")
@@ -107,7 +107,7 @@ class CreateAccountServiceSpec extends Specification {
         "a\"b(c)d,e:f;g<h>i[j\\k]l@example.com"      | RFC_EMAIL_FIELD_ERROR
         "this is\"not\\allowed@example.com"          | RFC_EMAIL_FIELD_ERROR
         "this\\ still\\\"not\\\\allowed@example.com" | RFC_EMAIL_FIELD_ERROR
-        "%s@gmail.com".formatted(randomString(256)) | "Email address length cannot exceed '${Account.MAX_LENGTH}' characters."
+        "%s@gmail.com".formatted(randomString(256))  | "Email address length cannot exceed '${EmailAddress.MAX_LENGTH}' characters."
     }
 
     def "should fail account creation when currency is invalid with message: '#errorMessage'"() {
@@ -177,8 +177,8 @@ class CreateAccountServiceSpec extends Specification {
         and: 'ensure account is build as expected'
         assert either.get().getId().id() != null
         assert either.get().getId().id() instanceof UUID
-        assert either.get().getCreationDate() != null
-        assert either.get().getCreationDate() instanceof Instant
+        assert either.get().getCreationTimestamp() != null
+        assert either.get().getCreationTimestamp() instanceof Instant
         assert either.get().getAccountDetails() == new AccountDetails("Jon", "Snow")
         assert either.get().getEmailAddress() == new EmailAddress("jonsnow@gmail.com")
         assert either.get().getPreference() == new Preference(Currency.getInstance("MDL"), ZoneId.of("Europe/Chisinau"))
