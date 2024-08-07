@@ -1,5 +1,6 @@
 package io.myfinbox.expense.adapter.web;
 
+import io.myfinbox.expense.application.CategoryQuery;
 import io.myfinbox.expense.application.CategoryService;
 import io.myfinbox.expense.domain.Category;
 import io.myfinbox.rest.ExpenseCategoryResource;
@@ -21,6 +22,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 final class ExpenseCategoryController implements ExpensesCategoryApi {
 
     private final CategoryService categoryService;
+    private final CategoryQuery categoryQuery;
     private final ApiFailureHandler apiFailureHandler;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -41,6 +43,13 @@ final class ExpenseCategoryController implements ExpensesCategoryApi {
     public ResponseEntity<?> delete(@PathVariable UUID categoryId) {
         return categoryService.delete(categoryId)
                 .fold(apiFailureHandler::handle, ok -> noContent().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<?> list(@RequestParam(value = "accountId") UUID accountId) {
+        return ok(categoryQuery.search(accountId).stream()
+                .map(this::toResource)
+                .toList());
     }
 
     private ExpenseCategoryResource toResource(Category category) {
