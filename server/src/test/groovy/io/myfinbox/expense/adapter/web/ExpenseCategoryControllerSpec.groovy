@@ -11,15 +11,18 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.jdbc.JdbcTestUtils
+import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Tag
 
 import static io.myfinbox.expense.DataSamples.newValidExpenseCategoryResource
+import static io.myfinbox.expense.DataSamples.newValidExpenseCategoryResourceList
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpMethod.DELETE
@@ -123,6 +126,18 @@ class ExpenseCategoryControllerSpec extends Specification {
         JSONAssert.assertEquals(expectDeleteConflictFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql('/expense/web/expensecategory-create.sql')
+    def "should get a list with two expense category"() {
+        when: 'list expense category'
+        def response = getExpenses(UUID.fromString(DataSamples.accountId))
+
+        then: 'response status is OK'
+        assert response.getStatusCode() == OK
+
+        and: 'a list of two expense is present'
+        JSONAssert.assertEquals(newValidExpenseCategoryResourceList(), response.getBody(), LENIENT)
+    }
+
     private postExpenseCategory(String request) {
         restTemplate.postForEntity('/v1/expenses/category', entityRequest(request), String.class)
     }
@@ -141,6 +156,20 @@ class ExpenseCategoryControllerSpec extends Specification {
                 "/v1/expenses/category/${DataSamples.categoryId}",
                 DELETE,
                 entityRequest(null),
+                String.class
+        )
+    }
+
+    def getExpenses(UUID accountId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/expenses/category")
+                .queryParam("accountId", accountId)
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
                 String.class
         )
     }

@@ -122,4 +122,8 @@ class DataSamples {
     static newValidExpenseCategoryResource(map = [:]) {
         JsonOutput.toJson(EXPENSE_CATEGORY_RESOURCE + map) as String
     }
+
+    static newValidExpenseCategoryResourceList() {
+        JsonOutput.toJson([EXPENSE_CATEGORY_RESOURCE, EXPENSE_CATEGORY_RESOURCE + [categoryId: categoryId2, name: 'Other']]) as String
+    }
 }
