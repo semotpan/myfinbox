@@ -1,5 +1,6 @@
 package io.myfinbox.income.adapter.web;
 
+import io.myfinbox.income.application.IncomeSourceQuery;
 import io.myfinbox.income.application.IncomeSourceService;
 import io.myfinbox.income.domain.IncomeSource;
 import io.myfinbox.rest.IncomeSourceResource;
@@ -21,6 +22,7 @@ import static org.springframework.web.servlet.support.ServletUriComponentsBuilde
 final class IncomeSourceController implements IncomesSourceApi {
 
     private final IncomeSourceService incomeSourceService;
+    private final IncomeSourceQuery incomeSourceQuery;
     private final ApiFailureHandler apiFailureHandler;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -41,6 +43,13 @@ final class IncomeSourceController implements IncomesSourceApi {
     public ResponseEntity<?> delete(@PathVariable UUID incomeSourceId) {
         return incomeSourceService.delete(incomeSourceId)
                 .fold(apiFailureHandler::handle, ok -> noContent().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<?> list(@RequestParam(value = "accountId") UUID accountId) {
+        return ok(incomeSourceQuery.search(accountId).stream()
+                .map(this::toResource)
+                .toList());
     }
 
     private IncomeSourceResource toResource(IncomeSource incomeSource) {

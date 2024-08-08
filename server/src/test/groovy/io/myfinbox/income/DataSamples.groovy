@@ -108,6 +108,10 @@ class DataSamples {
         JsonOutput.toJson(INCOME_RESOURCE + map) as String
     }
 
+    static newValidIncomeSourceResourceList() {
+        JsonOutput.toJson([INCOME_SOURCE_RESOURCE, INCOME_SOURCE_RESOURCE + [incomeSourceId: incomeSourceId2, name: 'Other']]) as String
+    }
+
     static newValidIncomeCommand(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(INCOME_COMMAND + map) as String, IncomeCommand.class)
     }

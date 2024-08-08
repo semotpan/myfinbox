@@ -3,7 +3,6 @@ package io.myfinbox.income.adapter.web
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import io.myfinbox.TestServerApplication
-import io.myfinbox.income.DataSamples
 import org.skyscreamer.jsonassert.JSONAssert
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -11,15 +10,17 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.jdbc.JdbcTestUtils
+import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Tag
 
-import static io.myfinbox.income.DataSamples.newValidIncomeSourceResource
+import static io.myfinbox.income.DataSamples.*
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpMethod.DELETE
@@ -112,7 +113,7 @@ class IncomeSourceControllerSpec extends Specification {
     }
 
     @Sql(['/income/web/incomesource-create.sql', '/income/web/income-create.sql'])
-    def "Should fail delete when income source is in use"() {
+    def "should fail delete when income source is in use"() {
         when: 'income source fails to delete'
         def response = deleteIncomeSource()
 
@@ -123,13 +124,25 @@ class IncomeSourceControllerSpec extends Specification {
         JSONAssert.assertEquals(expectDeleteConflictFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql('/income/web/incomesource-create.sql')
+    def "should get a list with two income source"() {
+        when: 'list income sources'
+        def response = listIncomeSources(UUID.fromString(accountId))
+
+        then: 'response status is OK'
+        assert response.getStatusCode() == OK
+
+        and: 'a list of two income sources is present'
+        JSONAssert.assertEquals(newValidIncomeSourceResourceList(), response.getBody(), LENIENT)
+    }
+
     private postIncomeSource(String request) {
         restTemplate.postForEntity('/v1/incomes/income-source', entityRequest(request), String.class)
     }
 
     private putIncomeSource(String request) {
         restTemplate.exchange(
-                "/v1/incomes/income-source/${DataSamples.incomeSourceId}",
+                "/v1/incomes/income-source/${incomeSourceId}",
                 PUT,
                 entityRequest(request),
                 String.class
@@ -138,9 +151,23 @@ class IncomeSourceControllerSpec extends Specification {
 
     private deleteIncomeSource() {
         restTemplate.exchange(
-                "/v1/incomes/income-source/${DataSamples.incomeSourceId}",
+                "/v1/incomes/income-source/${incomeSourceId}",
                 DELETE,
                 entityRequest(null),
+                String.class
+        )
+    }
+
+    def listIncomeSources(UUID accountId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/incomes/income-source")
+                .queryParam("accountId", accountId)
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
                 String.class
         )
     }
