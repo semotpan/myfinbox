@@ -44,10 +44,10 @@ class CategoryQueryServiceSpec extends Specification {
         setup: 'mock the repository to return a list with a sample category for any account identifier'
         1 * categories.findByAccount(_ as AccountIdentifier) >> [newSampleCategory()]
 
-        when: 'Searching for categories with a random account ID'
+        when: 'searching for categories with a random account ID'
         def categoryList = service.search(UUID.randomUUID())
 
         then: 'the result should be a list with one category'
-        assert categoryList.size() == 1
+        assert categoryList.containsAll(newSampleCategory())
     }
 }

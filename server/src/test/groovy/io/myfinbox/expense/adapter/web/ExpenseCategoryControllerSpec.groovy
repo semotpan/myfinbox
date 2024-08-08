@@ -128,8 +128,8 @@ class ExpenseCategoryControllerSpec extends Specification {
 
     @Sql('/expense/web/expensecategory-create.sql')
     def "should get a list with two expense category"() {
-        when: 'list expense category'
-        def response = getExpenses(UUID.fromString(DataSamples.accountId))
+        when: 'list expense categories'
+        def response = listExpenseCategories(UUID.fromString(DataSamples.accountId))
 
         then: 'response status is OK'
         assert response.getStatusCode() == OK
@@ -160,7 +160,7 @@ class ExpenseCategoryControllerSpec extends Specification {
         )
     }
 
-    def getExpenses(UUID accountId) {
+    def listExpenseCategories(UUID accountId) {
         def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/expenses/category")
                 .queryParam("accountId", accountId)
                 .build()
