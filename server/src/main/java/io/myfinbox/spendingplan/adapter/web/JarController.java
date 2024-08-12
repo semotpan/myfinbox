@@ -1,14 +1,14 @@
 package io.myfinbox.spendingplan.adapter.web;
 
-import io.myfinbox.rest.CreateJarResource;
 import io.myfinbox.rest.JarCategoryModificationResource;
+import io.myfinbox.rest.JarResource;
 import io.myfinbox.shared.ApiFailureHandler;
 import io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase;
 import io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoryToAddOrRemove;
 import io.myfinbox.spendingplan.application.CreateJarUseCase;
 import io.myfinbox.spendingplan.application.JarCommand;
-import io.myfinbox.spendingplan.domain.Jar;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +29,13 @@ final class JarController implements JarsApi {
     private final CreateJarUseCase createJarUseCase;
     private final AddOrRemoveJarCategoryUseCase addOrRemoveJarCategoryUseCase;
     private final ApiFailureHandler apiFailureHandler;
+    private final ConversionService conversionService;
 
     @PostMapping(path = "/{planId}/jars", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> create(@PathVariable UUID planId, @RequestBody CreateJarResource resource) {
+    public ResponseEntity<?> create(@PathVariable UUID planId, @RequestBody JarResource resource) {
         return createJarUseCase.create(planId, toCommand(resource))
                 .fold(apiFailureHandler::handle, jar -> created(fromCurrentRequest().path("/{id}").build(jar.getId().id()))
-                        .body(toResource(jar)));
+                        .body(conversionService.convert(jar, JarResource.class)));
     }
 
     @PutMapping(path = "/{planId}/jars/{jarId}/expense-categories", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -45,23 +46,12 @@ final class JarController implements JarsApi {
                 .fold(apiFailureHandler::handle, ok -> ok().build());
     }
 
-    private JarCommand toCommand(CreateJarResource resource) {
+    private JarCommand toCommand(JarResource resource) {
         return JarCommand.builder()
                 .name(resource.getName())
                 .percentage(resource.getPercentage())
                 .description(resource.getDescription())
                 .build();
-    }
-
-    private CreateJarResource toResource(Jar jar) {
-        return new CreateJarResource()
-                .jarId(jar.getId().id())
-                .creationTimestamp(jar.getCreationTimestamp().toString())
-                .amountToReach(jar.getAmountToReachAsNumber())
-                .currencyCode(jar.getCurrencyCode())
-                .name(jar.getName())
-                .percentage(jar.getPercentage().value())
-                .description(jar.getDescription());
     }
 
     private JarCategoriesCommand toCommand(JarCategoryModificationResource resource) {

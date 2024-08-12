@@ -7,10 +7,8 @@ import io.myfinbox.expense.ExpenseDeleted
 import io.myfinbox.expense.ExpenseUpdated
 import io.myfinbox.spendingplan.application.JarCommand
 import io.myfinbox.spendingplan.application.PlanCommand
-import io.myfinbox.spendingplan.domain.ExpenseRecord
-import io.myfinbox.spendingplan.domain.Jar
-import io.myfinbox.spendingplan.domain.JarExpenseCategory
-import io.myfinbox.spendingplan.domain.Plan
+import io.myfinbox.spendingplan.domain.*
+import org.javamoney.moneta.Money
 
 import static io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoriesCommand
 import static io.myfinbox.spendingplan.application.ClassicPlanBuilderUseCase.CreateClassicPlanCommand
@@ -30,11 +28,13 @@ class DataSamples {
     static jarCategoryId = "e2709aa2-7907-4f78-98b6-0f36a0c1b5ca"
     static jarCategoryId2 = "ee0a4cdc-84f0-4f81-8aea-224dad4915e7"
     static timestamp = "2024-03-23T10:00:04.224870Z"
-    static amount = 1000.0
+    static amount = 1000.00
     static currency = 'EUR'
     static name = 'My basic plan'
     static jarName = 'Necessities'
     static expenseDate = "2024-03-23"
+    static String jarDescription = "Necessities spending: Rent, Food, Bills etc."
+    static String planDescription = "My basic plan for tracking expenses"
 
     static AMOUNT = [
             amount  : amount,
@@ -46,7 +46,7 @@ class DataSamples {
             accountId   : accountId,
             amount      : amount,
             currencyCode: currency,
-            description : "My basic plan for tracking expenses",
+            description : planDescription,
     ]
 
     static CREATE_CLASSIC_PLAN_RESOURCE = [
@@ -60,7 +60,7 @@ class DataSamples {
             accountId   : accountId,
             amount      : amount,
             currencyCode: currency,
-            description : "My basic plan for tracking expenses",
+            description : planDescription,
     ]
 
     static CLASSIC_PLAN_COMMAND = [
@@ -70,32 +70,54 @@ class DataSamples {
     ]
 
     static PLAN = [
-            id         : [id: planId],
-            name       : name,
-            account    : [id: accountId],
-            amount     : AMOUNT,
-            description: "My basic plan for tracking expenses",
+            id               : [id: planId],
+            name             : name,
+            account          : [id: accountId],
+            creationTimestamp: timestamp,
+            amount           : AMOUNT,
+            description      : planDescription
+    ]
+
+    static PLAN_PLAIN = [
+            planId           : planId,
+            name             : name,
+            accountId        : accountId,
+            creationTimestamp: timestamp,
+            amount           : amount,
+            currencyCode     : currency,
+            description      : planDescription
     ]
 
     static CREATE_JAR_RESOURCE = [
             name       : 'Necessities',
             percentage : 55,
-            description: "Necessities spending: Rent, Food, Bills etc.",
+            description: jarDescription,
     ]
 
     static JAR_COMMAND = [
             name       : jarName,
             percentage : 55,
-            description: "Necessities spending: Rent, Food, Bills etc."
+            description: jarDescription
     ]
 
     static JAR = [
-            id           : [id: jarId],
-            percentage   : [value: 55],
-            amountToReach: AMOUNT + [amount: 550],
-            name         : jarName,
-            description  : "Necessities spending: Rent, Food, Bills etc.",
+            id               : [id: jarId],
+            percentage       : [value: 55],
+            amountToReach    : AMOUNT + [amount: 550],
+            creationTimestamp: timestamp,
+            name             : jarName,
+            description      : jarDescription,
     ]
+
+    static JAR_PLAIN = [
+            jarId            : jarId,
+            percentage       : 55,
+            amountToReach    : 550.00,
+            creationTimestamp: timestamp,
+            name             : jarName,
+            description      : jarDescription,
+    ]
+
 
     static JAR_CATEGORIES_COMMAND = [
             categories: [JAR_CATEGORY_TO_ADD_OR_REMOVE]
@@ -160,6 +182,23 @@ class DataSamples {
 
     static newSamplePlan(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(PLAN + map) as String, Plan.class)
+    }
+
+    static newSamplePlanWithJarAsString() {
+        JsonOutput.toJson(PLAN_PLAIN + [jars: [JAR_PLAIN]])
+    }
+
+    static newSampleListPlanWithJarAsString() {
+        JsonOutput.toJson([PLAN_PLAIN + [jars: [JAR_PLAIN]]])
+    }
+
+    static newSamplePlanBuilder() {
+        Plan.builder()
+                .name(name)
+                .account(new AccountIdentifier(UUID.fromString(accountId)))
+                .amount(Money.of(BigDecimal.valueOf(amount), currency))
+                .description(planDescription)
+                .jars([newSampleJar()])
     }
 
     static newSampleCreateJarResource(map = [:]) {

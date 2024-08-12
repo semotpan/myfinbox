@@ -11,12 +11,14 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.modulith.test.ApplicationModuleTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.jdbc.JdbcTestUtils
+import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Tag
 
@@ -150,6 +152,41 @@ class PlanControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedFailure, response.getBody(), LENIENT)
     }
 
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
+    def "should get one existing spending plan"() {
+        when: 'getting one plan'
+        def response = getOnePlan(UUID.fromString(planId))
+
+        then: 'the response status is "OK"'
+        assert response.getStatusCode() == OK
+
+        and: 'the response body contains the expected resource'
+        JSONAssert.assertEquals(newSamplePlanWithJarAsString(), response.getBody(), LENIENT)
+    }
+
+    def "should get not found when spending plan doesn't exit"() {
+        when: 'getting one plan'
+        def response = getOnePlan(UUID.fromString(planId))
+
+        then: 'the response status is "NOT_FOUND"'
+        assert response.getStatusCode() == NOT_FOUND
+
+        and: 'the response body contains the not found failure'
+        JSONAssert.assertEquals(expectedPlanNotFoundFailure(), response.getBody(), LENIENT)
+    }
+
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
+    def "should list a list with one spending plan for provided account"() {
+        when: 'listing plans by accountId'
+        def response = listPlans(UUID.fromString(accountId))
+
+        then: 'the response status is "OK"'
+        assert response.getStatusCode() == OK
+
+        and: 'the response body contains the expected resource'
+        JSONAssert.assertEquals(newSampleListPlanWithJarAsString(), response.getBody(), LENIENT)
+    }
+
     def postPlan(String req) {
         restTemplate.postForEntity('/v1/plans', entityRequest(req), String.class)
     }
@@ -163,6 +200,33 @@ class PlanControllerSpec extends Specification {
                 "/v1/plans/${planId}",
                 PUT,
                 entityRequest(req),
+                String.class
+        )
+    }
+
+    def getOnePlan(UUID planId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/plans/${planId}")
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
+                String.class
+        )
+    }
+
+    def listPlans(UUID accountId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/plans")
+                .queryParam("accountId", accountId)
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
                 String.class
         )
     }
@@ -218,5 +282,13 @@ class PlanControllerSpec extends Specification {
         def filePath = 'spendingplan/web/classic-plan-creation-failure-response.json'
         def failureAsMap = new JsonSlurper().parse(new ClassPathResource(filePath).getFile())
         JsonOutput.toJson(failureAsMap)
+    }
+
+    def expectedPlanNotFoundFailure() {
+        JsonOutput.toJson([
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Plan with ID '${planId}' was not found."
+        ])
     }
 }
