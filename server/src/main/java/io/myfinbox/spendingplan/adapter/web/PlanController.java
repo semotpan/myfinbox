@@ -3,13 +3,11 @@ package io.myfinbox.spendingplan.adapter.web;
 import io.myfinbox.rest.CreateClassicPlanResource;
 import io.myfinbox.rest.PlanResource;
 import io.myfinbox.shared.ApiFailureHandler;
-import io.myfinbox.spendingplan.application.ClassicPlanBuilderUseCase;
+import io.myfinbox.shared.Failure;
+import io.myfinbox.spendingplan.application.*;
 import io.myfinbox.spendingplan.application.ClassicPlanBuilderUseCase.CreateClassicPlanCommand;
-import io.myfinbox.spendingplan.application.CreatePlanUseCase;
-import io.myfinbox.spendingplan.application.PlanCommand;
-import io.myfinbox.spendingplan.application.UpdatePlanUseCase;
-import io.myfinbox.spendingplan.domain.Plan;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,37 +26,52 @@ final class PlanController implements PlansApi {
     private final CreatePlanUseCase createPlanUseCase;
     private final ClassicPlanBuilderUseCase classicPlanBuilderUseCase;
     private final UpdatePlanUseCase updatePlanUseCase;
+    private final PlanQuery planQuery;
     private final ApiFailureHandler apiFailureHandler;
+    private final ConversionService conversionService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestBody PlanResource resource) {
         return createPlanUseCase.create(toCommand(resource))
                 .fold(apiFailureHandler::handle, plan -> created(fromCurrentRequest().path("/{id}").build(plan.getId().id()))
-                        .body(toResource(plan)));
+                        .body(conversionService.convert(plan, PlanResource.class)));
     }
 
     @PostMapping(path = "/classic", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createClassic(@RequestBody CreateClassicPlanResource resource) {
         return classicPlanBuilderUseCase.create(toCommand(resource))
                 .fold(apiFailureHandler::handle, plan -> created(fromCurrentRequest().path("/{id}").build(plan.getId().id()))
-                        .body(toResource(plan)));
+                        .body(conversionService.convert(plan, PlanResource.class)));
     }
 
     @PutMapping(path = "/{planId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@PathVariable UUID planId, @RequestBody PlanResource resource) {
         return updatePlanUseCase.update(planId, toCommand(resource))
-                .fold(apiFailureHandler::handle, plan -> ok().body(toResource(plan)));
+                .fold(apiFailureHandler::handle, plan -> ok().body(conversionService.convert(plan, PlanResource.class)));
     }
 
-    private PlanResource toResource(Plan plan) {
-        return new PlanResource()
-                .planId(plan.getId().id())
-                .name(plan.getName())
-                .creationTimestamp(plan.getCreationTimestamp().toString())
-                .amount(plan.getAmountAsNumber())
-                .currencyCode(plan.getCurrencyCode())
-                .accountId(plan.getAccount().id())
-                .description(plan.getDescription());
+    @GetMapping(path = "/{planId}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> one(@PathVariable UUID planId) {
+        var plans = planQuery.search()
+                .withPlanId(planId)
+                .list();
+
+        if (plans.isEmpty()) {
+            return apiFailureHandler.handle(Failure.ofNotFound("Plan with ID '%s' was not found.".formatted(planId)));
+        }
+
+        return ok().body(conversionService.convert(plans.getFirst(), PlanResource.class));
+    }
+
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> list(@RequestParam("accountId") UUID accountId) {
+        var plans = planQuery.search()
+                .withAccountId(accountId)
+                .list();
+
+        return ok().body(plans.stream()
+                .map(plan -> conversionService.convert(plan, PlanResource.class))
+                .toList());
     }
 
     private PlanCommand toCommand(PlanResource resource) {

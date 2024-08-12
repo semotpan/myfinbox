@@ -230,8 +230,14 @@ components:
           type: string
           example: My base plan for tracking all spending
           description: Additional description attached to the spending plan.
+        jars:
+          type: array
+          description: Jars created for current Plan
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/JarResource'
 
-    CreateJarResource:
+    JarResource:
       type: object
       properties:
         jarId:

@@ -6,6 +6,7 @@ import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -18,6 +19,7 @@ import java.net.URI;
 import java.util.UUID;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -84,4 +86,35 @@ public interface PlansApi {
     })
     ResponseEntity<?> update(@Parameter(in = PATH, description = "PlanId to be updated", required = true) UUID planId,
                              @RequestBody(description = "Spending Plan Resource to be updated", required = true) PlanResource resource);
+
+    @Operation(summary = "Query a list of spending plans for a specified account in the MyFinBox",
+            description = "Query a list of spending plans for a specified account in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PlanResource.class)))),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> list(@Parameter(in = QUERY, description = "Account to be used for selecting spending plans", required = true) UUID accountId);
+
+    @Operation(summary = "Query a spending plan for a specified plan ID in the MyFinBox",
+            description = "Query a spending plan for a specified plan ID in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PlanResource.class)))),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Plan not found Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> one(@Parameter(in = PATH, description = "Plan Id to be used for searching", required = true) UUID planId);
+
 }

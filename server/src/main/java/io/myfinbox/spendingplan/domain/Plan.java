@@ -18,6 +18,8 @@ import java.util.UUID;
 
 import static io.myfinbox.shared.Guards.*;
 import static jakarta.persistence.CascadeType.ALL;
+import static java.math.RoundingMode.HALF_UP;
+import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -55,13 +57,15 @@ public class Plan extends AbstractAggregateRoot<Plan> {
     public Plan(AccountIdentifier account,
                 MonetaryAmount amount,
                 String name,
-                String description) {
+                String description,
+                List<Jar> jars) {
         this.id = new PlanIdentifier(UUID.randomUUID());
         this.creationTimestamp = Instant.now();
         this.account = notNull(account, "account cannot be null");
         setAmount(amount);
         setName(name);
         this.description = description;
+        this.jars = isNull(jars) || jars.isEmpty() ? new ArrayList<>() : jars;
     }
 
     private void setName(String name) {
@@ -74,7 +78,8 @@ public class Plan extends AbstractAggregateRoot<Plan> {
     }
 
     public BigDecimal getAmountAsNumber() {
-        return amount.getNumber().numberValue(BigDecimal.class);
+        return amount.getNumber().numberValue(BigDecimal.class)
+                .setScale(2, HALF_UP);
     }
 
     public String getCurrencyCode() {

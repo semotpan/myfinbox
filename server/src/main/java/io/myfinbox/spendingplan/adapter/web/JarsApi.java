@@ -1,7 +1,7 @@
 package io.myfinbox.spendingplan.adapter.web;
 
-import io.myfinbox.rest.CreateJarResource;
 import io.myfinbox.rest.JarCategoryModificationResource;
+import io.myfinbox.rest.JarResource;
 import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,7 +32,7 @@ public interface JarsApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successful Operation",
                     headers = @Header(name = LOCATION, description = "Created jar source URI location", schema = @Schema(implementation = URI.class)),
-                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = CreateJarResource.class))),
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = JarResource.class))),
             @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Spending plan not found",
@@ -45,7 +45,7 @@ public interface JarsApi {
                     content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     ResponseEntity<?> create(@Parameter(in = PATH, description = "Spending plan ID to be added new jar", required = true) UUID planId,
-                             @RequestBody(description = "Jar Resource to be created", required = true) CreateJarResource resource);
+                             @RequestBody(description = "Jar Resource to be created", required = true) JarResource resource);
 
     @Operation(
             summary = "Modify Expense Categories for Spending Plan Jar",
