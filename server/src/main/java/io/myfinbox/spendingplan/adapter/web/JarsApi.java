@@ -6,6 +6,7 @@ import io.myfinbox.shared.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -70,5 +71,36 @@ public interface JarsApi {
             @Parameter(in = PATH, description = "ID of the spending plan containing the jar to modify categories", required = true) UUID planId,
             @Parameter(in = PATH, description = "ID of the spending jar to modify categories", required = true) UUID jarId,
             @RequestBody(description = "Resource containing categories to add or remove", required = true) JarCategoryModificationResource resource);
+
+    @Operation(summary = "Query a list of jars for a specified planId in the MyFinBox",
+            description = "Query a list of jars for a specified planId in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = JarResource.class)))),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> list(@Parameter(in = PATH, description = "Plan Id to be used for selecting spending jars", required = true) UUID planId);
+
+    @Operation(summary = "Query a spending jar for a specified jar ID and plan ID in the MyFinBox",
+            description = "Query a spending jar for a specified jar ID and plan ID in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = JarResource.class)))),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Jar not found Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> one(@Parameter(in = PATH, description = "Plan Id to be used for searching", required = true) UUID planId,
+                          @Parameter(in = PATH, description = "Jar Id to be used for searching", required = true) UUID jarId);
 
 }

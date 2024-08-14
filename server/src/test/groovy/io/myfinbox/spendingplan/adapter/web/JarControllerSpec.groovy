@@ -13,12 +13,14 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.modulith.test.ApplicationModuleTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.jdbc.JdbcTestUtils
+import org.springframework.web.util.UriComponentsBuilder
 import spock.lang.Specification
 import spock.lang.Tag
 
@@ -136,6 +138,41 @@ class JarControllerSpec extends Specification {
         JSONAssert.assertEquals(expectedCategoriesModificationFailure(), response.getBody(), LENIENT)
     }
 
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
+    def "should get one existing spending jar"() {
+        when: 'getting one jar'
+        def response = getOneJar(UUID.fromString(planId), UUID.fromString(jarId))
+
+        then: 'the response status is "OK"'
+        assert response.getStatusCode() == OK
+
+        and: 'the response body contains the expected resource'
+        JSONAssert.assertEquals(newSampleJarAsString(), response.getBody(), LENIENT)
+    }
+
+    def "should get not found when spending jar was not found"() {
+        when: 'getting one jar'
+        def response = getOneJar(UUID.fromString(planId), UUID.fromString(jarId))
+
+        then: 'the response status is "NOT_FOUND"'
+        assert response.getStatusCode() == NOT_FOUND
+
+        and: 'the response body contains the not found failure'
+        JSONAssert.assertEquals(expectedJarNotFoundFailure(), response.getBody(), LENIENT)
+    }
+
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
+    def "should get a list with one existing spending jar for provided planId"() {
+        when: 'listing jars by planId'
+        def response = listJars(UUID.fromString(planId))
+
+        then: 'the response status is "OK"'
+        assert response.getStatusCode() == OK
+
+        and: 'the response body contains the expected resource'
+        JSONAssert.assertEquals(newSampleListJarAsString(), response.getBody(), LENIENT)
+    }
+
     def postJar(String req) {
         restTemplate.postForEntity("/v1/plans/${planId}/jars", entityRequest(req), String.class)
     }
@@ -145,6 +182,32 @@ class JarControllerSpec extends Specification {
                 "/v1/plans/${planId}/jars/${jarId}/expense-categories",
                 PUT,
                 entityRequest(req),
+                String.class
+        )
+    }
+
+    def getOneJar(UUID planId, UUID jarId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/plans/${planId}/jars/${jarId}")
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
+                String.class
+        )
+    }
+
+    def listJars(UUID planId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/plans/${planId}/jars")
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
                 String.class
         )
     }
@@ -186,6 +249,14 @@ class JarControllerSpec extends Specification {
                 status   : 404,
                 errorCode: "NOT_FOUND",
                 message  : "Spending plan jar was not found."
+        ])
+    }
+
+    def expectedJarNotFoundFailure() {
+        JsonOutput.toJson([
+                status   : 404,
+                errorCode: "NOT_FOUND",
+                message  : "Jar with ID '${jarId}' for plan ID '${planId}' was not found."
         ])
     }
 }

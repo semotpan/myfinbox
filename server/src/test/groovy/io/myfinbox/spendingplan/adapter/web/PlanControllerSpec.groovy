@@ -176,7 +176,7 @@ class PlanControllerSpec extends Specification {
     }
 
     @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql'])
-    def "should list a list with one spending plan for provided account"() {
+    def "should get a list with one spending plan for provided account"() {
         when: 'listing plans by accountId'
         def response = listPlans(UUID.fromString(accountId))
 
