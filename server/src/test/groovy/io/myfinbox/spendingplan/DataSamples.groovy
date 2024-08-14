@@ -248,4 +248,12 @@ class DataSamples {
     static newSampleExpenseDeletedEvent(map = [:]) {
         MAPPER.readValue(JsonOutput.toJson(EXPENSE_EVENT + map) as String, ExpenseDeleted.class)
     }
+
+    static newSampleJarAsString() {
+        JsonOutput.toJson(JAR_PLAIN)
+    }
+
+    static newSampleListJarAsString() {
+        JsonOutput.toJson([JAR_PLAIN])
+    }
 }

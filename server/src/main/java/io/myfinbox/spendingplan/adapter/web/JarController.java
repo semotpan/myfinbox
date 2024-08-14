@@ -3,10 +3,12 @@ package io.myfinbox.spendingplan.adapter.web;
 import io.myfinbox.rest.JarCategoryModificationResource;
 import io.myfinbox.rest.JarResource;
 import io.myfinbox.shared.ApiFailureHandler;
+import io.myfinbox.shared.Failure;
 import io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase;
 import io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoryToAddOrRemove;
 import io.myfinbox.spendingplan.application.CreateJarUseCase;
 import io.myfinbox.spendingplan.application.JarCommand;
+import io.myfinbox.spendingplan.application.JarQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ final class JarController implements JarsApi {
 
     private final CreateJarUseCase createJarUseCase;
     private final AddOrRemoveJarCategoryUseCase addOrRemoveJarCategoryUseCase;
+    private final JarQuery jarQuery;
     private final ApiFailureHandler apiFailureHandler;
     private final ConversionService conversionService;
 
@@ -44,6 +47,31 @@ final class JarController implements JarsApi {
                                                      @RequestBody JarCategoryModificationResource resource) {
         return addOrRemoveJarCategoryUseCase.addOrRemove(planId, jarId, toCommand(resource))
                 .fold(apiFailureHandler::handle, ok -> ok().build());
+    }
+
+    @GetMapping(path = "/{planId}/jars/{jarId}", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> one(@PathVariable UUID planId, @PathVariable UUID jarId) {
+        var jars = jarQuery.search()
+                .withPlanId(planId)
+                .withJarId(jarId)
+                .list();
+
+        if (jars.isEmpty()) {
+            return apiFailureHandler.handle(Failure.ofNotFound("Jar with ID '%s' for plan ID '%s' was not found.".formatted(jarId, planId)));
+        }
+
+        return ok().body(conversionService.convert(jars.getFirst(), JarResource.class));
+    }
+
+    @GetMapping(path = "/{planId}/jars", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> list(@PathVariable("planId") UUID planId) {
+        var jars = jarQuery.search()
+                .withPlanId(planId)
+                .list();
+
+        return ok().body(jars.stream()
+                .map(jar -> conversionService.convert(jar, JarResource.class))
+                .toList());
     }
 
     private JarCommand toCommand(JarResource resource) {
