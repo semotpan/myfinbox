@@ -1,6 +1,8 @@
+CREATE SEQUENCE IF NOT EXISTS jer_seq_id START 1 INCREMENT 1;
+
 CREATE TABLE IF NOT EXISTS jar_expense_record
 (
-    id                      BIGSERIAL PRIMARY KEY,
+    id                      BIGINT PRIMARY KEY      DEFAULT nextval('jer_seq_id'),
     expense_id              UUID           NOT NULL,
     creation_timestamp      TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     category_id             UUID           NOT NULL,
@@ -14,5 +16,3 @@ CREATE TABLE IF NOT EXISTS jar_expense_record
 ;
 
 CREATE INDEX IF NOT EXISTS search_jar_expense_category_jar_id_idx ON jar_expense_record (category_id, expense_date, jar_expense_category_id);
-
-CREATE SEQUENCE IF NOT EXISTS jer_seq_id START 1 INCREMENT 1;
