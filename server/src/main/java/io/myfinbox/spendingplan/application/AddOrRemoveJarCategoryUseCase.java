@@ -30,7 +30,7 @@ public interface AddOrRemoveJarCategoryUseCase {
         public static final String CATEGORIES_JAR_FIELD = "categories";
     }
 
-    record JarCategoryToAddOrRemove(UUID categoryId, Boolean toAdd) {
+    record JarCategoryToAddOrRemove(UUID categoryId, String categoryName, Boolean toAdd) {
 
         /**
          * Gets whether the category is checked or not.

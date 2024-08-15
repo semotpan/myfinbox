@@ -86,10 +86,10 @@ class AddOrRemoveJarCategoryService implements AddOrRemoveJarCategoryUseCase {
     private List<JarExpenseCategory> filterToCreate(Jar jar, JarCategoriesCommand command) {
         return command.categories().stream()
                 .filter(JarCategoryToAddOrRemove::toAdd)
-                .map(JarCategoryToAddOrRemove::categoryId)
-                .filter(category -> !existsByJarIdAndCategoryId(jar.getId(), category))
+                .filter(category -> !existsByJarIdAndCategoryId(jar.getId(), category.categoryId()))
                 .map(category -> JarExpenseCategory.builder()
-                        .categoryId(new CategoryIdentifier(category))
+                        .categoryId(new CategoryIdentifier(category.categoryId()))
+                        .categoryName(category.categoryName())
                         .jar(jar)
                         .build())
                 .toList();

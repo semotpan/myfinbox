@@ -86,7 +86,7 @@ final class JarController implements JarsApi {
         var categoryToAdds = resource.getCategories()
                 .stream()
                 .filter(Objects::nonNull) // avoid null categoryToAdd
-                .map(categoryToAdd -> new JarCategoryToAddOrRemove(categoryToAdd.getCategoryId(), categoryToAdd.getToAdd()))
+                .map(categoryToAdd -> new JarCategoryToAddOrRemove(categoryToAdd.getCategoryId(), categoryToAdd.getCategoryName(), categoryToAdd.getToAdd()))
                 .toList();
         return new JarCategoriesCommand(categoryToAdds);
     }

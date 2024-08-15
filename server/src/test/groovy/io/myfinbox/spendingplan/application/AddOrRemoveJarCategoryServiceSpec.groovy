@@ -49,7 +49,9 @@ class AddOrRemoveJarCategoryServiceSpec extends Specification {
         categories                                                           | failMessage
         null                                                                 | 'At least one category must be provided.'
         []                                                                   | 'At least one category must be provided.'
-        [newSampleJarCategoryToAddAsMap(categoryId: null)]                   | 'Null categoryId not allowed.'
+        [newSampleJarCategoryToAddAsMap(categoryId: null)]                   | 'Null categoryId or blank categoryName not allowed.'
+        [newSampleJarCategoryToAddAsMap(categoryName: null)]                 | 'Null categoryId or blank categoryName not allowed.'
+        [newSampleJarCategoryToAddAsMap(categoryName: '')]                   | 'Null categoryId or blank categoryName not allowed.'
         [newSampleJarCategoryToAddAsMap(), newSampleJarCategoryToAddAsMap()] | 'Duplicate category ids provided.'
     }
 
@@ -85,7 +87,7 @@ class AddOrRemoveJarCategoryServiceSpec extends Specification {
         given: 'a new command'
         def command = newSampleJarCategoriesCommand(categories: [newSampleJarCategoryToAddAsMap()])
 
-        1 * jars.findByIdAndPlanId(_ as JarIdentifier, _ as PlanIdentifier) >>Optional.empty()
+        1 * jars.findByIdAndPlanId(_ as JarIdentifier, _ as PlanIdentifier) >> Optional.empty()
 
         when: 'attempting to add or remove categories for null jar id'
         def either = service.addOrRemove(UUID.randomUUID(), UUID.randomUUID(), command)
@@ -116,6 +118,7 @@ class AddOrRemoveJarCategoryServiceSpec extends Specification {
         and: 'the added categories are present'
         assert either.get().size() == 1
         assert either.get().getFirst().getCategoryId() == new CategoryIdentifier(UUID.fromString(jarCategoryId))
+        assert either.get().getFirst().getCategoryName() == categoryName
         assert either.get().getFirst().getJar() == newSampleJar()
         assert either.get().getFirst().getCreationTimestamp() != null
 

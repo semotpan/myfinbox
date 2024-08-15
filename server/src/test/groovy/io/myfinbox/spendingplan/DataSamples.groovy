@@ -35,6 +35,7 @@ class DataSamples {
     static expenseDate = "2024-03-23"
     static String jarDescription = "Necessities spending: Rent, Food, Bills etc."
     static String planDescription = "My basic plan for tracking expenses"
+    static String categoryName = 'Clothing'
 
     static AMOUNT = [
             amount  : amount,
@@ -125,6 +126,7 @@ class DataSamples {
 
     static JAR_CATEGORY_TO_ADD_OR_REMOVE = [
             categoryId: jarCategoryId,
+            categoryName: categoryName,
             toAdd     : true
     ]
 
