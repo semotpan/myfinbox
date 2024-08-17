@@ -173,6 +173,18 @@ class JarControllerSpec extends Specification {
         JSONAssert.assertEquals(newSampleListJarAsString(), response.getBody(), LENIENT)
     }
 
+    @Sql(['/spendingplan/web/plan-create.sql', '/spendingplan/web/jars-create.sql', '/spendingplan/web/jar_expense_category-create.sql'])
+    def "should get a list of expense categories"() {
+        when: 'listing expense categories for a planId by jarId'
+        def response = listJarExpenseCategories(UUID.fromString(planId), UUID.fromString(jarId))
+
+        then: 'the response status is "OK"'
+        assert response.getStatusCode() == OK
+
+        and: 'the response body contains the expected resource'
+        JSONAssert.assertEquals(newSampleListJarExpenseCategoriesAsString(), response.getBody(), LENIENT)
+    }
+
     def postJar(String req) {
         restTemplate.postForEntity("/v1/plans/${planId}/jars", entityRequest(req), String.class)
     }
@@ -201,6 +213,19 @@ class JarControllerSpec extends Specification {
 
     def listJars(UUID planId) {
         def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/plans/${planId}/jars")
+                .build()
+                .toUri()
+
+        restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
+                String.class
+        )
+    }
+
+    def listJarExpenseCategories(UUID planId, UUID jarId) {
+        def uri = UriComponentsBuilder.fromUriString("${restTemplate.getRootUri()}/v1/plans/${planId}/jars/${jarId}/expense-categories")
                 .build()
                 .toUri()
 

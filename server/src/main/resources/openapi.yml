@@ -314,3 +314,28 @@ components:
           example: MDL
           pattern: '^[A-Z]{3}$'
           description: The ISO 4217 currency code in uppercase (e.g., USD, EUR).
+
+    JarExpenseCategoryResource:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+          readOnly: true
+          description: The ID of the expense category.
+        categoryId:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier for the expense category.
+        categoryName:
+          type: string
+          readOnly: true
+          example: Clothing
+          description: The expense category name, it can be null.
+        creationTimestamp:
+          type: string
+          readOnly: true
+          example: 2024-03-23T10:00:04.224870Z
+          description: The timestamp when the expense category was created (read-only).

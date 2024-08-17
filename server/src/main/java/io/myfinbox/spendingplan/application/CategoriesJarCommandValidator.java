@@ -4,6 +4,7 @@ import io.myfinbox.shared.Failure;
 import io.vavr.control.Validation;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.myfinbox.shared.Failure.FieldViolation;
@@ -12,7 +13,6 @@ import static io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase
 import static io.vavr.API.Invalid;
 import static io.vavr.API.Valid;
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 final class CategoriesJarCommandValidator {
 
@@ -26,12 +26,13 @@ final class CategoriesJarCommandValidator {
         }
 
         var anyNull = categories.stream()
-                .anyMatch(category -> isNull(category.categoryId()) || isBlank(category.categoryName()));
+                .map(JarCategoryToAddOrRemove::categoryId)
+                .anyMatch(Objects::isNull);
 
         if (anyNull) {
             return Invalid(Failure.FieldViolation.builder()
                     .field(CATEGORIES_JAR_FIELD)
-                    .message("Null categoryId or blank categoryName not allowed.")
+                    .message("Null categoryId not allowed.")
                     .rejectedValue(categories)
                     .build());
         }

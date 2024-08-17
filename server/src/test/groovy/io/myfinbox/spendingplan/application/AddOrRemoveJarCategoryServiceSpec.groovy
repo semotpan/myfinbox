@@ -49,9 +49,7 @@ class AddOrRemoveJarCategoryServiceSpec extends Specification {
         categories                                                           | failMessage
         null                                                                 | 'At least one category must be provided.'
         []                                                                   | 'At least one category must be provided.'
-        [newSampleJarCategoryToAddAsMap(categoryId: null)]                   | 'Null categoryId or blank categoryName not allowed.'
-        [newSampleJarCategoryToAddAsMap(categoryName: null)]                 | 'Null categoryId or blank categoryName not allowed.'
-        [newSampleJarCategoryToAddAsMap(categoryName: '')]                   | 'Null categoryId or blank categoryName not allowed.'
+        [newSampleJarCategoryToAddAsMap(categoryId: null)]                   | 'Null categoryId not allowed.'
         [newSampleJarCategoryToAddAsMap(), newSampleJarCategoryToAddAsMap()] | 'Duplicate category ids provided.'
     }
 

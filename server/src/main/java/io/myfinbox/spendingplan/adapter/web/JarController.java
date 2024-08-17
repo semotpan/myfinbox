@@ -1,14 +1,12 @@
 package io.myfinbox.spendingplan.adapter.web;
 
 import io.myfinbox.rest.JarCategoryModificationResource;
+import io.myfinbox.rest.JarExpenseCategoryResource;
 import io.myfinbox.rest.JarResource;
 import io.myfinbox.shared.ApiFailureHandler;
 import io.myfinbox.shared.Failure;
-import io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase;
+import io.myfinbox.spendingplan.application.*;
 import io.myfinbox.spendingplan.application.AddOrRemoveJarCategoryUseCase.JarCategoryToAddOrRemove;
-import io.myfinbox.spendingplan.application.CreateJarUseCase;
-import io.myfinbox.spendingplan.application.JarCommand;
-import io.myfinbox.spendingplan.application.JarQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +29,7 @@ final class JarController implements JarsApi {
     private final CreateJarUseCase createJarUseCase;
     private final AddOrRemoveJarCategoryUseCase addOrRemoveJarCategoryUseCase;
     private final JarQuery jarQuery;
+    private final JarExpenseCategoryQuery jarExpenseCategoryQuery;
     private final ApiFailureHandler apiFailureHandler;
     private final ConversionService conversionService;
 
@@ -71,6 +70,13 @@ final class JarController implements JarsApi {
 
         return ok().body(jars.stream()
                 .map(jar -> conversionService.convert(jar, JarResource.class))
+                .toList());
+    }
+
+    @GetMapping(path = "/{planId}/jars/{jarId}/expense-categories", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> list(@PathVariable UUID planId, @PathVariable UUID jarId) {
+        return ok().body(jarExpenseCategoryQuery.search(planId, jarId).stream()
+                .map(expenseCategory -> conversionService.convert(expenseCategory, JarExpenseCategoryResource.class))
                 .toList());
     }
 

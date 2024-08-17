@@ -103,4 +103,19 @@ public interface JarsApi {
     ResponseEntity<?> one(@Parameter(in = PATH, description = "Plan Id to be used for searching", required = true) UUID planId,
                           @Parameter(in = PATH, description = "Jar Id to be used for searching", required = true) UUID jarId);
 
+    @Operation(summary = "Query a list of attached expense categories to a jar in the MyFinBox",
+            description = "Query a list of attached expense categories to a jar in the MyFinBox",
+            security = {@SecurityRequirement(name = "openId")},
+            tags = {TAG})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation",
+                    content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = JarResource.class)))),
+            @ApiResponse(responseCode = "400", description = "Malformed JSON or Type Mismatch Failure",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ResponseEntity<?> list(@Parameter(in = PATH, description = "Plan Id to be used for searching", required = true) UUID planId,
+                           @Parameter(in = PATH, description = "Jar Id to be used for searching", required = true) UUID jarId);
+
 }
