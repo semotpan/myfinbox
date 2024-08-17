@@ -7,10 +7,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.myfinbox.shared.Guards.*;
+import static io.myfinbox.shared.Guards.notNull;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 import static lombok.AccessLevel.PACKAGE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Entity
 @Getter
@@ -32,7 +33,7 @@ public class JarExpenseCategory {
     @AttributeOverride(name = "id", column = @Column(name = "category_id"))
     private final CategoryIdentifier categoryId;
 
-    @Column(name = "category_name", nullable = false)
+    @Column(name = "category_name")
     private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,7 +47,7 @@ public class JarExpenseCategory {
     public JarExpenseCategory(Jar jar, CategoryIdentifier categoryId, String categoryName) {
         this.jar = notNull(jar, "jar cannot be null.");
         this.categoryId = notNull(categoryId, "categoryId cannot be null.");
-        this.categoryName = notBlank(categoryName, "categoryName cannot be null.");
+        this.categoryName = !isBlank(categoryName) ? categoryName.trim() : null;
         this.creationTimestamp = Instant.now();
     }
 }

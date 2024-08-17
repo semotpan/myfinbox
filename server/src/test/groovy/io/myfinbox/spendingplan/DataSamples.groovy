@@ -125,9 +125,9 @@ class DataSamples {
     ]
 
     static JAR_CATEGORY_TO_ADD_OR_REMOVE = [
-            categoryId: jarCategoryId,
+            categoryId  : jarCategoryId,
             categoryName: categoryName,
-            toAdd     : true
+            toAdd       : true
     ]
 
     static EXPENSE_MODIFICATION_RECORD = [
@@ -158,8 +158,17 @@ class DataSamples {
     ]
 
     static JAR_EXPENSE_CATEGORY = [
-            id        : 1,
-            categoryId: [id: jarCategoryId]
+            id               : 1,
+            categoryId       : [id: jarCategoryId],
+            categoryName     : categoryName,
+            creationTimestamp: timestamp,
+    ]
+
+    static JAR_EXPENSE_CATEGORY_PLAIN = [
+            id               : 1,
+            categoryId       : jarCategoryId,
+            categoryName     : categoryName,
+            creationTimestamp: timestamp,
     ]
 
     static JAR_CATEGORIES_RESOURCE = [
@@ -257,5 +266,9 @@ class DataSamples {
 
     static newSampleListJarAsString() {
         JsonOutput.toJson([JAR_PLAIN])
+    }
+
+    static newSampleListJarExpenseCategoriesAsString() {
+        JsonOutput.toJson([JAR_EXPENSE_CATEGORY_PLAIN, JAR_EXPENSE_CATEGORY_PLAIN + [id: 2, categoryId: jarCategoryId2]])
     }
 }

@@ -25,4 +25,9 @@ public interface Jars extends JpaRepository<Jar, JarIdentifier> {
             """)
     List<Jar> findByPlanId(PlanIdentifier planId);
 
+    @Query(value = """
+            SELECT COUNT(j) > 0 FROM Jar j
+            WHERE j.id = :jarId AND j.plan.id = :planId
+            """)
+    boolean existsByIdAndPlan(PlanIdentifier planId, JarIdentifier jarId);
 }
