@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS jar_expense_record
     amount                  DECIMAL(19, 4) NOT NULL,
     currency                VARCHAR(3)     NOT NULL,
     expense_date            DATE           NOT NULL,
+    category_name           VARCHAR(100)   NOT NULL,
     jar_expense_category_id BIGINT         NOT NULL,
     FOREIGN KEY (jar_expense_category_id) REFERENCES spending_jar_expense_category (id)
 )

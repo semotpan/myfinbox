@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static io.myfinbox.shared.Guards.notBlank;
 import static io.myfinbox.shared.Guards.notNull;
 
 /**
@@ -49,7 +50,8 @@ public interface ExpenseRecordTrackerUseCase {
                                      UUID categoryId,
                                      MonetaryAmount amount,
                                      LocalDate expenseDate,
-                                     PaymentType paymentType) {
+                                     PaymentType paymentType,
+                                     String categoryName) {
         public ExpenseModificationRecord {
             // Validate non-null fields
             notNull(expenseId, "expenseId cannot be null.");
@@ -58,6 +60,7 @@ public interface ExpenseRecordTrackerUseCase {
             notNull(amount, "amount cannot be null.");
             notNull(expenseDate, "expenseDate cannot be null.");
             notNull(paymentType, "paymentType cannot be null.");
+            notBlank(categoryName, "categoryName cannot be blank.");
         }
     }
 }

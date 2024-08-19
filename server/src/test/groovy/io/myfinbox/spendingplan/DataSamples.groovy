@@ -131,30 +131,33 @@ class DataSamples {
     ]
 
     static EXPENSE_MODIFICATION_RECORD = [
-            expenseId  : expenseId,
-            accountId  : accountId,
-            categoryId : jarCategoryId,
-            paymentType: "CASH",
-            amount     : AMOUNT,
-            expenseDate: expenseDate,
+            expenseId   : expenseId,
+            accountId   : accountId,
+            categoryId  : jarCategoryId,
+            paymentType : "CASH",
+            amount      : AMOUNT,
+            expenseDate : expenseDate,
+            categoryName: categoryName,
     ]
 
     static EXPENSE_EVENT = [
-            expenseId  : expenseId,
-            accountId  : accountId,
-            categoryId : jarCategoryId,
-            paymentType: "CASH",
-            amount     : AMOUNT,
-            expenseDate: expenseDate,
+            expenseId   : expenseId,
+            accountId   : accountId,
+            categoryId  : jarCategoryId,
+            paymentType : "CASH",
+            amount      : AMOUNT,
+            expenseDate : expenseDate,
+            categoryName: categoryName,
     ]
 
     static EXPENSE_RECORD = [
-            id         : 1L,
-            expenseId  : [id: expenseId],
-            categoryId : [id: jarCategoryId],
-            paymentType: "CASH",
-            amount     : AMOUNT,
-            expenseDate: expenseDate,
+            id          : 1L,
+            expenseId   : [id: expenseId],
+            categoryId  : [id: jarCategoryId],
+            paymentType : "CASH",
+            amount      : AMOUNT,
+            categoryName: categoryName,
+            expenseDate : expenseDate,
     ]
 
     static JAR_EXPENSE_CATEGORY = [

@@ -40,6 +40,7 @@ class ExpenseRecordTrackerService implements ExpenseRecordTrackerUseCase {
                         .amount(createdRecord.amount())
                         .paymentType(createdRecord.paymentType())
                         .expenseDate(createdRecord.expenseDate())
+                        .categoryName(createdRecord.categoryName())
                         .jarExpenseCategory(category)
                         .build())
                 .toList();
