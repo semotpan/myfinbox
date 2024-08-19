@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static io.myfinbox.shared.Guards.notBlank;
 import static io.myfinbox.shared.Guards.notNull;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -47,6 +48,7 @@ public class ExpenseRecord {
     private PaymentType paymentType;
 
     private LocalDate expenseDate;
+    private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jar_expense_category_id", referencedColumnName = "id", nullable = false)
@@ -58,12 +60,14 @@ public class ExpenseRecord {
                          MonetaryAmount amount,
                          PaymentType paymentType,
                          LocalDate expenseDate,
+                         String categoryName,
                          JarExpenseCategory jarExpenseCategory) {
         this.expenseId = notNull(expenseId, "expenseId cannot be null.");
         this.categoryId = notNull(categoryId, "categoryId cannot be null.");
         this.amount = notNull(amount, "amount cannot be null.");
         this.paymentType = notNull(paymentType, "paymentType cannot be null.");
         this.expenseDate = notNull(expenseDate, "expenseDate cannot be null.");
+        this.categoryName = notBlank(categoryName, "categoryName cannot be blank.");
         this.jarExpenseCategory = notNull(jarExpenseCategory, "jarExpenseCategory cannot be null.");
         this.creationTimestamp = Instant.now();
     }

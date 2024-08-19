@@ -73,6 +73,7 @@ class ExpenseEventsListenerSpec extends Specification {
         assert recordedExpense.amount == Money.of(amount, "EUR")
         assert recordedExpense.paymentType == PaymentType.CASH
         assert recordedExpense.expenseDate == LocalDate.parse(expenseDate)
+        assert recordedExpense.categoryName == categoryName
     }
 
     @Sql(['/spendingplan/messaging/create-complete-plan-structure.sql', '/spendingplan/messaging/create-expense-records.sql'])

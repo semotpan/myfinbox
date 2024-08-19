@@ -8,6 +8,7 @@ import javax.money.MonetaryAmount;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static io.myfinbox.shared.Guards.notBlank;
 import static io.myfinbox.shared.Guards.notNull;
 
 /**
@@ -22,17 +23,19 @@ public record ExpenseUpdated(UUID expenseId,
                              UUID categoryId,
                              MonetaryAmount amount,
                              LocalDate expenseDate,
-                             PaymentType paymentType) implements DomainEvent {
+                             PaymentType paymentType,
+                             String categoryName) implements DomainEvent {
 
     /**
      * Constructor for the ExpenseUpdated record.
      *
-     * @param expenseId   The unique identifier of the expense.
-     * @param accountId   The identifier of the account associated with the expense.
-     * @param categoryId  The identifier of the category associated with the expense.
-     * @param amount      The amount of the expense.
-     * @param expenseDate The date of the expense.
-     * @param paymentType The payment type of the expense.
+     * @param expenseId    The unique identifier of the expense.
+     * @param accountId    The identifier of the account associated with the expense.
+     * @param categoryId   The identifier of the category associated with the expense.
+     * @param amount       The amount of the expense.
+     * @param expenseDate  The date of the expense.
+     * @param paymentType  The payment type of the expense.
+     * @param categoryName The category name associated with the expense.
      */
     public ExpenseUpdated {
         notNull(expenseId, "expenseId cannot be null.");
@@ -41,5 +44,6 @@ public record ExpenseUpdated(UUID expenseId,
         notNull(amount, "amount cannot be null.");
         notNull(expenseDate, "expenseDate cannot be null.");
         notNull(paymentType, "paymentType cannot be null.");
+        notBlank(categoryName, "categoryName cannot be blank.");
     }
 }

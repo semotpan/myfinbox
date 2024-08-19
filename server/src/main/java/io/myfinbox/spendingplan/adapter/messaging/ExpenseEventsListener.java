@@ -37,6 +37,7 @@ class ExpenseEventsListener {
                 .amount(event.amount())
                 .paymentType(event.paymentType())
                 .expenseDate(event.expenseDate())
+                .categoryName(event.categoryName())
                 .build());
 
         if (expenseRecord.isEmpty()) {
@@ -61,6 +62,7 @@ class ExpenseEventsListener {
                 .amount(event.amount())
                 .paymentType(event.paymentType())
                 .expenseDate(event.expenseDate())
+                .categoryName(event.categoryName())
                 .build());
 
         if (expenseRecord.isEmpty()) {
@@ -85,6 +87,7 @@ class ExpenseEventsListener {
                 .amount(event.amount())
                 .paymentType(event.paymentType())
                 .expenseDate(event.expenseDate())
+                .categoryName(event.categoryName())
                 .build());
 
         if (expenseRecord.isEmpty()) {

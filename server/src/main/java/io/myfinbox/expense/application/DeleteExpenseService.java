@@ -29,7 +29,7 @@ class DeleteExpenseService implements DeleteExpenseUseCase {
             return Either.left(Failure.ofNotFound(EXPENSE_NOT_FOUND_MESSAGE));
         }
 
-        var possibleExpense = expenses.findById(new ExpenseIdentifier(expenseId));
+        var possibleExpense = expenses.findByIdEagerCategory(new ExpenseIdentifier(expenseId));
         if (possibleExpense.isEmpty()) {
             return Either.left(Failure.ofNotFound(EXPENSE_NOT_FOUND_MESSAGE));
         }

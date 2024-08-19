@@ -76,6 +76,7 @@ public class Expense extends AbstractAggregateRoot<Expense> {
                 .amount(this.amount)
                 .expenseDate(this.expenseDate)
                 .paymentType(this.paymentType)
+                .categoryName(category.getName())
                 .build());
     }
 
@@ -94,6 +95,7 @@ public class Expense extends AbstractAggregateRoot<Expense> {
                 .amount(this.amount)
                 .expenseDate(this.expenseDate)
                 .paymentType(this.paymentType)
+                .categoryName(builder.category.getName())
                 .build());
     }
 
@@ -113,6 +115,7 @@ public class Expense extends AbstractAggregateRoot<Expense> {
                 .amount(this.amount)
                 .expenseDate(this.expenseDate)
                 .paymentType(this.paymentType)
+                .categoryName(getCategory().getName())
                 .build());
     }
 

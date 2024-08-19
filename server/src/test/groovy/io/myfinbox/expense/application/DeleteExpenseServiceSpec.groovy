@@ -32,7 +32,7 @@ class DeleteExpenseServiceSpec extends Specification {
 
     def "should fail delete when expense not found"() {
         setup: 'repository mock behavior and interaction'
-        1 * expenses.findById(_ as Expense.ExpenseIdentifier) >> Optional.empty()
+        1 * expenses.findByIdEagerCategory(_ as Expense.ExpenseIdentifier) >> Optional.empty()
 
         when: 'expense failed to delete'
         def either = service.delete(UUID.randomUUID())
@@ -47,7 +47,7 @@ class DeleteExpenseServiceSpec extends Specification {
     def "should delete an expense"() {
         setup: 'repository mock behavior and interaction'
         def expense = newSampleExpense()
-        1 * expenses.findById(_ as Expense.ExpenseIdentifier) >> Optional.of(expense)
+        1 * expenses.findByIdEagerCategory(_ as Expense.ExpenseIdentifier) >> Optional.of(expense)
 
         when: 'expense is deleted'
         def either = service.delete(UUID.randomUUID())
