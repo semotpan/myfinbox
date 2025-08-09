@@ -63,7 +63,7 @@ public final class Guards {
 
     public static String matches(String value, Pattern pattern, String message) {
         notNull(value, "value cannot be null.");
-        notNull(value, "pattern cannot be null.");
+        notNull(pattern, "pattern cannot be null.");
         if (!pattern.matcher(value).matches()) {
             throw new IllegalArgumentException(message);
         }
